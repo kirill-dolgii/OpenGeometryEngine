@@ -10,12 +10,17 @@ public readonly struct Point
     public readonly double Z;
 
     /// <summary>
-    /// Initializes a new instance of the Point struct with the specified X, Y, and Z coordinates.
+    /// Radius vector representation of point.
+    /// </summary>
+    public readonly Vector Vector;
+
+    /// <summary>
+    /// Initializes a new instance of the Origin struct with the specified X, Y, and Z coordinates.
     /// </summary>
     /// <param name="x">The X-coordinate of the point.</param>
     /// <param name="y">The Y-coordinate of the point.</param>
     /// <param name="z">The Z-coordinate of the point.</param>
-    public Point (double x, double y, double z) => (X, Y, Z) = (x, y, z);
+    public Point (double x, double y, double z) => (X, Y, Z, Vector) = (x, y, z, new Vector(x, y, z));
 
     /// <summary>
     /// Subtracts a vector from the point, resulting in a new point.
