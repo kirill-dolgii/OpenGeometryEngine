@@ -1,9 +1,14 @@
+using System;
+using System.Collections.Generic;
+
+using OpenGeometryEngine.Extensions;
+
 namespace OpenGeometryEngine;
     
 /// <summary>
 /// Represents an infinite 3D line defined by an origin point and a direction vector.
 /// </summary>
-public class Line : ISpatial
+public class Line : Curve
 {
     /// <summary>
     /// The origin point of the line.
@@ -19,7 +24,7 @@ public class Line : ISpatial
     /// </summary>
     /// <param name="origin">The origin point of the line.</param>
     /// <param name="direction">The direction vector of the line.</param>
-    public Line(Point origin, Vector direction)
+    public Line(Point origin, Vector direction, Parametrization parametrization) : base(parametrization)
     {
         Origin = origin;
         Direction = direction.Normalize();
@@ -33,8 +38,10 @@ public class Line : ISpatial
     public bool ContainsPoint(Point point)
     {
         Vector vectorToPoint = point - Origin;
+        Vector cross = Vector.CrossProduct(vectorToPoint, Direction);
+        if ((cross - Vector.Zero).Magnitude > Constants.Tolerance) return false;
         double scalarProjection = Vector.Dot(vectorToPoint, Direction);
-        return scalarProjection == 0; // The point is on the line if the scalar projection is zero.
+        return ContainsParam(scalarProjection); // The point is on the line if the scalar projection is zero.
     }
 
     /// <summary>
@@ -46,7 +53,7 @@ public class Line : ISpatial
     {
         Vector originToPoint = point - Origin;
         double t = Vector.Dot(originToPoint, Direction); // Direction is a unit vector.
-        return Evaluated(t);
+        return Evaluate(t);
     }
 
     /// <summary>
@@ -55,5 +62,23 @@ public class Line : ISpatial
     /// <param name="param">Local coordinate.</param>
     /// <returns>Evaluated point at the specified parameter.</returns>
 
-    public Point Evaluated(double param) => Origin + Direction * param;
+    public IGeometry CreateTransformedCopy(Matrix transformationMatrix)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public bool IsCoincident(IGeometry otherGeometry)
+    {
+        var otherLine = (Line) otherGeometry;
+        if (otherLine == null) return false;
+        return (Direction - otherLine.Direction).Magnitude <= Constants.Tolerance;
+    }
+
+    public override ICollection<IntersectionPoint> IntersectCurve(Curve otherCurve)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override Point Evaluate(double param) => 
+        Origin + Direction * param.Clamp(Parametrization.Bounds.Start, Parametrization.Bounds.End);
 }

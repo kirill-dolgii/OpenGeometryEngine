@@ -5,7 +5,7 @@ namespace OpenGeometryEngine;
 /// <summary>
 /// Represents a plane in 3D space.
 /// </summary>
-public class Plane : ISpatial
+public class Plane : IGeometry
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Plane"/> class with the specified point on the plane
@@ -46,4 +46,17 @@ public class Plane : ISpatial
     /// </summary>
     /// <returns>The point in global coordinates.</returns>
     public Point Evaluate(double u, double v) => Frame.Origin + Frame.DirX * u + Frame.DirY * v;
+
+    public IGeometry CreateTransformedCopy(Matrix transformationMatrix)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public bool IsCoincident(IGeometry otherGeometry)
+    {
+        var otherPlane = (Plane)otherGeometry;
+        if (otherPlane == null) return false;
+        return (Frame.Origin - otherPlane.Frame.Origin).Magnitude <= Constants.Tolerance && 
+               (Frame.DirZ - otherPlane.Frame.DirZ).Magnitude <= Constants.Tolerance;
+    }
 }

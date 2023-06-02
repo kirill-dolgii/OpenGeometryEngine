@@ -11,6 +11,8 @@ public readonly struct Vector
     public readonly double Y;
     public readonly double Z;
 
+    public static Vector Zero => new (0, 0, 0);
+
     /// <summary>
     /// The magnitude (length) of the vector.
     /// </summary>
@@ -70,6 +72,15 @@ public readonly struct Vector
     public static double Dot(Vector a, Vector b)
     {
         return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+    }
+
+    public static Vector CrossProduct(Vector vector1, Vector vector2)
+    {
+        double crossProductX = vector1.Y * vector2.Z - vector1.Z * vector2.Y;
+        double crossProductY = vector1.Z * vector2.X - vector1.X * vector2.Z;
+        double crossProductZ = vector1.X * vector2.Y - vector1.Y * vector2.X;
+
+        return new Vector(crossProductX, crossProductY, crossProductZ);
     }
 
     /// <summary>
