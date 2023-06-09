@@ -1,6 +1,6 @@
 using System;
 
-namespace OpenGeometryEngine.Structures;
+namespace OpenGeometryEngine;
 
 public readonly struct Parametrization : IEquatable<Parametrization>
 {

@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-
-using OpenGeometryEngine.Extensions;
 using OpenGeometryEngine.Intersection;
-using OpenGeometryEngine.Structures;
 
 namespace OpenGeometryEngine;
 

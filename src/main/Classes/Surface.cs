@@ -1,5 +1,3 @@
-using OpenGeometryEngine.Structures;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace OpenGeometryEngine;

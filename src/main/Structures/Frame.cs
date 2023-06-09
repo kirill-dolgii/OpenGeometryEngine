@@ -5,6 +5,8 @@ namespace OpenGeometryEngine;
 /// </summary>
 public readonly struct Frame
 {
+    public static Frame World = new (Point.Origin, Vector.UnitX, Vector.UnitY, Vector.UnitZ);
+
     public Point Origin { get; }
 
     /// <summary>

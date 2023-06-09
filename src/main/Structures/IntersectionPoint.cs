@@ -1,4 +1,4 @@
-namespace OpenGeometryEngine.Structures;
+namespace OpenGeometryEngine;
 
 /// <summary>
 /// Represents an intersection point between two curves.
