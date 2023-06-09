@@ -12,7 +12,9 @@ public readonly struct Vector
     public readonly double Z;
 
     public static Vector Zero => new (0, 0, 0);
-
+    public static Vector UnitX => new (1, 0, 0);
+    public static Vector UnitY => new (0, 1, 0);
+    public static Vector UnitZ => new (0, 0, 1);
     /// <summary>
     /// The magnitude (length) of the vector.
     /// </summary>
@@ -89,4 +91,7 @@ public readonly struct Vector
     /// </summary>
     /// <returns>A normalized vector.</returns>
     public Vector Normalize() => new Vector(X / Magnitude, Y / Magnitude, Z / Magnitude);
+
+    public bool IsParallel(Vector other) =>
+        Math.Abs(Vector.Dot(other, this.Normalize()) - other.Magnitude) <= Constants.Tolerance;
 }

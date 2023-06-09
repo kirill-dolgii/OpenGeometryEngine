@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGeometryEngine", "OpenGeometryEngine.csproj", "{0AB4EC44-74CA-43F6-BD8F-990F4B4C4159}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenGeometryEngine", "src\main\OpenGeometryEngine.csproj", "{13A541C8-CE1D-4E6E-AF22-8577B21875B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGeometryEngineTests", "src\tests\OpenGeometryEngineTests.csproj", "{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0AB4EC44-74CA-43F6-BD8F-990F4B4C4159}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0AB4EC44-74CA-43F6-BD8F-990F4B4C4159}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0AB4EC44-74CA-43F6-BD8F-990F4B4C4159}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0AB4EC44-74CA-43F6-BD8F-990F4B4C4159}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13A541C8-CE1D-4E6E-AF22-8577B21875B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13A541C8-CE1D-4E6E-AF22-8577B21875B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13A541C8-CE1D-4E6E-AF22-8577B21875B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13A541C8-CE1D-4E6E-AF22-8577B21875B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

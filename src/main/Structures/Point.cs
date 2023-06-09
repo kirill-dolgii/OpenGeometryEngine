@@ -12,7 +12,9 @@ public readonly struct Point
     /// <summary>
     /// Radius vector representation of point.
     /// </summary>
-    public readonly Vector Vector;
+    public Vector Vector { get; }
+
+    public static Point Origin => new (0, 0, 0);
 
     /// <summary>
     /// Initializes a new instance of the Origin struct with the specified X, Y, and Z coordinates.

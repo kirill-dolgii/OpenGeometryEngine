@@ -2,7 +2,7 @@ namespace OpenGeometryEngine;
 
 public enum Form
 {
-    Open = 0,
-    Closed = 1,
-    Periodic = 2
+    Open = 1,
+    Closed = 2,
+    Periodic = 3
 }
