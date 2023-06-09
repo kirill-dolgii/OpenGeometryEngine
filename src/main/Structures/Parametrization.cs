@@ -1,6 +1,6 @@
 using System;
 
-namespace OpenGeometryEngine;
+namespace OpenGeometryEngine.Structures;
 
 public readonly struct Parametrization : IEquatable<Parametrization>
 {
@@ -23,7 +23,7 @@ public readonly struct Parametrization : IEquatable<Parametrization>
     {
         unchecked
         {
-            return (Bounds.GetHashCode() * 397) ^ (int)Form;
+            return Bounds.GetHashCode() * 397 ^ (int)Form;
         }
     }
 }
