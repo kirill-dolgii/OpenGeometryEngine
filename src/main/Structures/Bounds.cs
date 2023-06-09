@@ -29,3 +29,10 @@ public readonly struct Bounds : IEquatable<Bounds>
         }
     }
 }
+
+public readonly struct Bounds<T>
+{
+    public T U { get; }
+    public T V { get; }
+    public Bounds(T u, T v) => (U, V) = (u, v);
+}

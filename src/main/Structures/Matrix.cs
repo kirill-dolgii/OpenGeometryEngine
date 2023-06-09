@@ -8,7 +8,7 @@ public readonly struct Matrix
 
     public Matrix() => _data = new float[4, 4];
 
-    public Matrix CreateScale(float sx, float sy, float sz)
+    public static Matrix CreateScale(float sx, float sy, float sz)
     {
         return new Matrix
         {
@@ -22,7 +22,7 @@ public readonly struct Matrix
         };
     }
 
-    public Matrix CreateTranslation(float dx, float dy, float dz)
+    public static Matrix CreateTranslation(float dx, float dy, float dz)
     {
         return new Matrix
         {
