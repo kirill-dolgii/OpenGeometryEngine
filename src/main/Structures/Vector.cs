@@ -39,10 +39,8 @@ public readonly struct Vector
     /// <param name="a">The first vector.</param>
     /// <param name="b">The second vector.</param>
     /// <returns>New vector that represents the result of the addition.</returns>
-    public static Vector operator +(Vector a, Vector b)
-    {
-        return new Vector(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
-    }
+    public static Vector operator +(Vector a, Vector b) => 
+        new Vector(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
 
     /// <summary>
     /// Multiplies a vector by a scalar value.
@@ -61,10 +59,10 @@ public readonly struct Vector
     /// <param name="a">The vector to multiply.</param>
     /// <param name="b">The scalar value.</param>
     /// <returns>New vector that represents the result of the subtraction.</returns>
-    public static Vector operator -(Vector a, Vector b)
-    {
-        return new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
-    }
+    public static Vector operator -(Vector a, Vector b) => 
+        new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+
+    public static Vector operator -(Vector a) => a * -1;
 
     /// <summary>
     /// Calculates the dot product of two vectors.
@@ -72,12 +70,10 @@ public readonly struct Vector
     /// <param name="a">The first vector.</param>
     /// <param name="b">The second vector.</param>
     /// <returns>The dot product of the two vectors.</returns>
-    public static double Dot(Vector a, Vector b)
-    {
-        return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
-    }
+    public static double Dot(Vector a, Vector b) => 
+        a.X * b.X + a.Y * b.Y + a.Z * b.Z;
 
-    public static Vector CrossProduct(Vector vector1, Vector vector2)
+    public static Vector Cross(Vector vector1, Vector vector2)
     {
         double crossProductX = vector1.Y * vector2.Z - vector1.Z * vector2.Y;
         double crossProductY = vector1.Z * vector2.X - vector1.X * vector2.Z;
