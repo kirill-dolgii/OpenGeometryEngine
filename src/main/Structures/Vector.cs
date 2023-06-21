@@ -101,4 +101,11 @@ public readonly struct Vector
         // Calculate the angle in radians
         return Math.Acos(dot / magnitudeProduct);
     }
+
+    public double SignedAngle(Vector other, Vector axis)
+    {
+        var cross = Cross(this, other);
+        var sign = Math.Sign(Dot(cross, axis));
+        return sign * Angle(other);
+    }
 }

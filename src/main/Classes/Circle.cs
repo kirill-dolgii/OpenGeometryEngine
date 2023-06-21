@@ -1,3 +1,4 @@
+using OpenGeometryEngine.Intersection;
 using System;
 using System.Collections.Generic;
 
@@ -15,11 +16,11 @@ public class Circle : Curve, IHasFrame, IHasPlane
 
     public override CurveEvaluation ProjectPoint(Point point)
     {
-        var pointOnPlane = Plane.ProjectPoint(point);
+        var pointOnPlane = Plane.ContainsPoint(point) ? point : Plane.ProjectPoint(point);
         if ((pointOnPlane - Center).Magnitude <= Constants.Tolerance) return Evaluate(0);
         var centerToPointOnPlaneVector = pointOnPlane - Center;
         var projection = centerToPointOnPlaneVector * Radius;
-        return new CurveEvaluation(Frame.DirX.Angle(projection), new Point(projection.X, projection.Y, projection.Z));
+        return new CurveEvaluation(Frame.DirX.SignedAngle(projection, Frame.DirZ), new Point(projection.X, projection.Y, projection.Z));
     }
 
     public override Curve CreateTransformedCopy(Matrix transformationMatrix)
@@ -34,7 +35,12 @@ public class Circle : Curve, IHasFrame, IHasPlane
 
     public override ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> IntersectCurve(Curve otherCurve)
     {
-        throw new System.NotImplementedException();
+        if (otherCurve == null) throw new System.ArgumentNullException(nameof(otherCurve));
+        return otherCurve switch
+        {
+            Line line => LineCircleIntersection.LineIntersectCircle(line, this),
+            _ => throw new NotImplementedException()
+        };
     }
 
     public override CurveEvaluation Evaluate(double param)

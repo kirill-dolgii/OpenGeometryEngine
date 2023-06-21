@@ -49,9 +49,16 @@ public class Line : Curve
 
     public override ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> IntersectCurve(Curve otherCurve)
     {
-        var otherLine = (Line) otherCurve;
-        if (otherLine != null) return CurveIntersection.LineIntersectLine(this, otherLine);
-        return null;
+        if (otherCurve == null) throw new ArgumentNullException(nameof(otherCurve));
+        switch (otherCurve)
+        {
+            case Line line:
+                return LineLineIntersection.LineIntersectLine(this, line);
+            case Circle circle:
+                return LineCircleIntersection.LineIntersectCircle(this, circle);
+        }
+
+        throw new NotImplementedException();
     }
 
     /// <summary>
