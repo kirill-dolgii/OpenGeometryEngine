@@ -18,7 +18,7 @@ public class Circle : Curve, IHasFrame, IHasPlane
     public override CurveEvaluation ProjectPoint(Point point)
     {
         var pointOnPlane = Plane.ContainsPoint(point) ? point : Plane.ProjectPoint(point);         
-        if ((pointOnPlane - Center).Magnitude <= Constants.Tolerance) return Evaluate(0);
+        if (pointOnPlane == Center) return Evaluate(0);
         var centerToPointOnPlaneVector = pointOnPlane - Center;
         var projection = centerToPointOnPlaneVector * Radius;
         return new CurveEvaluation(Frame.DirX.SignedAngle(projection, Frame.DirZ), 
@@ -29,8 +29,8 @@ public class Circle : Curve, IHasFrame, IHasPlane
     {
         var otherCircle = otherCurve as Circle;
         if (otherCircle == null) return false;
-        return (Center - otherCircle.Center).Magnitude <= Constants.Tolerance &&
-               Radius - otherCircle.Radius <= Constants.Tolerance;
+        return Center == otherCircle.Center &&
+               Accuracy.EqualLengths(Radius, otherCircle.Radius);
 
     }
 
@@ -49,9 +49,14 @@ public class Circle : Curve, IHasFrame, IHasPlane
     {
         var start = (Frame.DirX * Radius);
         var startPoint = new Point(start.X, start.Y, start.Z);
-        if (Math.Abs(2 * Math.PI - param) <= Constants.Tolerance) param = 0;
-        if (Math.Abs(param) <= Constants.Tolerance) return new CurveEvaluation(0, startPoint);
+        if (Accuracy.EqualAngles(2 * Math.PI, param)) param = 0;
+        if (Accuracy.AngleIsZero(param)) return new CurveEvaluation(0, startPoint);
         var matrix = Matrix.CreateRotation(Frame.DirZ, param % (2 * Math.PI));
         return new CurveEvaluation(param, matrix * startPoint);
+    }
+
+    public override bool ContainsParam(double param)
+    {
+        throw new NotImplementedException();
     }
 }

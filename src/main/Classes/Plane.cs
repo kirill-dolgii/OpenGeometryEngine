@@ -56,7 +56,7 @@ public class Plane : IGeometry
     {
         var otherPlane = (Plane)otherGeometry;
         if (otherPlane == null) return false;
-        return (Frame.Origin - otherPlane.Frame.Origin).Magnitude <= Constants.Tolerance && 
-               (Frame.DirZ - otherPlane.Frame.DirZ).Magnitude <= Constants.Tolerance;
+        return Frame.Origin == otherPlane.Frame.Origin && 
+               Frame.DirZ == otherPlane.Frame.DirZ;
     }
 }

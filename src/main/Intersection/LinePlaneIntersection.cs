@@ -11,14 +11,15 @@ internal static class LinePlaneIntersection
         if (line == null) throw new ArgumentNullException(nameof(line));
         if (!plane.ContainsPoint(line.Origin)) return false;
         var dot = Vector.Dot(line.Direction, plane.Frame.DirZ);
-        return Math.Abs(dot) <= Constants.Tolerance;
+        return Accuracy.LengthIsZero(dot);
     }
 
     public static bool LineIntersectsPlane(Line line, Plane plane)
     {
         if (plane == null) throw new ArgumentNullException(nameof(plane));
         if (line == null) throw new ArgumentNullException(nameof(line));
-        return Math.Abs(Vector.Dot(line.Direction, plane.Frame.DirZ)) >= Constants.Tolerance;
+        var dot = Vector.Dot(line.Direction, plane.Frame.DirZ);
+        return !Accuracy.AngleIsZero(dot);
     }
 
     public static ICollection<IntersectionPoint<CurveEvaluation, SurfaceEvaluation>> LineIntersectPlane(

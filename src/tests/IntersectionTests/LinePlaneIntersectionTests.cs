@@ -18,8 +18,7 @@ public class LinePlaneIntersectionTests
         var intersection = LineIntersectPlane(line, plane);
         
         Assert.That(intersection.Count, Is.EqualTo(1));
-        Assert.IsTrue((intersection.First().FirstEvaluation.Point - new Point(-4, -8, 0)).Magnitude <=
-                      Constants.Tolerance);
+        Assert.IsTrue(intersection.First().FirstEvaluation.Point == new Point(-4, -8, 0));
 
         var line1 = new Line(new Point(1, 1, 1), new Vector(0, 1, 0));
         intersection = LineIntersectPlane(line1, plane);

@@ -16,15 +16,15 @@ internal static class LineCircleIntersection
             var lineToCircleOrigin = circle.Center - line.Origin;
             var proj = line.ProjectPoint(lineToCircleOrigin.ToPoint());
             var distance = (proj.Point - circle.Center).Magnitude;
-            if (circle.Radius - distance > Constants.Tolerance)
+            if (Accuracy.CompareLength(circle.Radius, distance) == 1)
             {
-                var offset = (float)Math.Sqrt(circle.Radius * circle.Radius - distance * distance); // Pythagoras triangle
+                var offset = (float) Math.Sqrt(circle.Radius * circle.Radius - distance * distance); // Pythagoras triangle
                 var p1 = proj.Point + line.Direction * offset;
                 var p2 = proj.Point - line.Direction * offset;
                 ret.Add(new(new CurveEvaluation(offset, p1), circle.ProjectPoint(p1))); 
                 ret.Add(new(new CurveEvaluation(-offset, p2), circle.ProjectPoint(p2)));
             }
-            else if (Math.Abs(circle.Radius - distance) <= Constants.Tolerance) 
+            else if (Accuracy.EqualLengths(circle.Radius, distance))
                 ret.Add(new(proj, circle.ProjectPoint(proj.Point)));
         }
         else if (LineIntersectsPlane(line, circle.Plane))
@@ -32,7 +32,7 @@ internal static class LineCircleIntersection
             var intersection = LineIntersectPlane(line, circle.Plane).Single();
             var intersPoint = intersection.FirstEvaluation.Point;
             var circleEval = circle.ProjectPoint(intersPoint);
-            if ((circleEval.Point - intersPoint).Magnitude <= Constants.Tolerance)
+            if (circleEval.Point == intersPoint)
                 ret.Add(new(intersection.FirstEvaluation, circleEval));
         }
         return ret;

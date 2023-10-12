@@ -27,9 +27,11 @@ public abstract class Curve : IGeometry
 
     public abstract CurveEvaluation Evaluate(double param);
 
+    public abstract bool ContainsParam(double param);
+
     public virtual bool ContainsPoint(Point point)
     {
         var proj = ProjectPoint(point);
-        return Parametrization.Bounds.ContainsParam(proj.Param);
+        return ContainsParam(proj.Param);
     }
 }

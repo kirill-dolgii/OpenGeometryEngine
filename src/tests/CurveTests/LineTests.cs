@@ -33,7 +33,7 @@ public class LineTests
         var line = new Line(Point.Origin, Vector.UnitZ);
         var point = new Point(0, 0, 12);
         var result = line.ProjectPoint(point);
-        Assert.IsTrue((result.Point - point).Z <= Constants.Tolerance);
+        Assert.IsTrue(Accuracy.LengthIsZero((result.Point - point).Z));
         Assert.That(result.Param, Is.EqualTo(point.Z));
     }
 

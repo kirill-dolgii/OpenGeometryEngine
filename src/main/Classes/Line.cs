@@ -37,8 +37,8 @@ public class Line : Curve
     {
         var otherLine = otherCurve as Line;
         if (otherLine == null) return false;
-        return (Origin - otherLine.Origin).Magnitude <= Constants.Tolerance &&
-               (Direction - otherLine.Direction).Magnitude <= Constants.Tolerance;
+        return Origin == otherLine.Origin &&
+               Direction == otherLine.Direction;
     }
 
     public override ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> IntersectCurve(Curve otherCurve)
@@ -54,6 +54,11 @@ public class Line : Curve
         throw new NotImplementedException();
     }
 
+    public override bool ContainsParam(double param)
+    {
+        throw new NotImplementedException();
+    }
+
     /// <summary>
     /// Evaluates the line at the given parameter.
     /// </summary>
@@ -61,7 +66,7 @@ public class Line : Curve
     /// <returns>Evaluated point at the specified parameter.</returns>
     public override CurveEvaluation Evaluate(double param)
     {
-        if (!Parametrization.Bounds.ContainsParam(param)) 
+        if (!ContainsParam(param)) 
             throw new ArgumentException("param is not within bounds", nameof(param));
         return new CurveEvaluation(param, Origin + Direction * param);
     }

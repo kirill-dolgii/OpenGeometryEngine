@@ -6,23 +6,25 @@ namespace OpenGeometryEngine;
 /// <summary>
 /// Represents a 3D vector with X, Y, and Z components.
 /// </summary>
-public readonly struct Vector
+public readonly struct Vector : IEquatable<Vector>
 {
     public readonly double X;
     public readonly double Y;
     public readonly double Z;
 
-    public static Vector Zero => new (0, 0, 0);
-    public static Vector UnitX => new (1, 0, 0);
-    public static Vector UnitY => new (0, 1, 0);
-    public static Vector UnitZ => new (0, 0, 1);
+    public static Vector Zero => new(0, 0, 0);
+    public static Vector UnitX => new(1, 0, 0);
+    public static Vector UnitY => new(0, 1, 0);
+    public static Vector UnitZ => new(0, 0, 1);
+
     /// <summary>
     /// The magnitude (length) of the vector.
     /// </summary>
     public readonly double Magnitude;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Vector"/> struct with the specified X, Y, and Z components.
+    /// Initializes a new instance of the <see cref="Vector"/> struct
+    /// with the specified X, Y, and Z components.
     /// </summary>
     /// <param name="x">The X component of the vector.</param>
     /// <param name="y">The Y component of the vector.</param>
@@ -39,7 +41,7 @@ public readonly struct Vector
     /// <param name="a">The first vector.</param>
     /// <param name="b">The second vector.</param>
     /// <returns>New vector that represents the result of the addition.</returns>
-    public static Vector operator +(Vector a, Vector b) => 
+    public static Vector operator +(Vector a, Vector b) =>
         new Vector(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
 
     /// <summary>
@@ -59,7 +61,7 @@ public readonly struct Vector
     /// <param name="a">The vector to multiply.</param>
     /// <param name="b">The scalar value.</param>
     /// <returns>New vector that represents the result of the subtraction.</returns>
-    public static Vector operator -(Vector a, Vector b) => 
+    public static Vector operator -(Vector a, Vector b) =>
         new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
 
     public static Vector operator -(Vector a) => a * -1;
@@ -70,7 +72,7 @@ public readonly struct Vector
     /// <param name="a">The first vector.</param>
     /// <param name="b">The second vector.</param>
     /// <returns>The dot product of the two vectors.</returns>
-    public static double Dot(Vector a, Vector b) => 
+    public static double Dot(Vector a, Vector b) =>
         a.X * b.X + a.Y * b.Y + a.Z * b.Z;
 
     public static Vector Cross(Vector vector1, Vector vector2)
@@ -89,8 +91,8 @@ public readonly struct Vector
     /// <returns>A normalized vector.</returns>
     public Vector Normalize() => new Vector(X / Magnitude, Y / Magnitude, Z / Magnitude);
 
-    public bool IsParallel(Vector other) =>
-        Math.Abs(Vector.Dot(other, this.Normalize()) - other.Magnitude) <= Constants.Tolerance;
+    public bool IsParallel(Vector other)
+        => Accuracy.AngleIsZero(Vector.Dot(other, this.Normalize()));
 
     public double Angle(Vector other)
     {
@@ -108,4 +110,31 @@ public readonly struct Vector
         var sign = Math.Sign(Dot(cross, axis));
         return sign * Angle(other);
     }
+
+    public bool Equals(Vector other)
+    {
+        return Accuracy.EqualLengths(X, other.X) &&
+               Accuracy.EqualLengths(Y, other.Y) &&
+               Accuracy.EqualLengths(Z, other.Z);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Vector other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hashCode = X.GetHashCode();
+            hashCode = (hashCode * 397) ^ Y.GetHashCode();
+            hashCode = (hashCode * 397) ^ Z.GetHashCode();
+            return hashCode;
+        }
+    }
+
+    public static bool operator ==(Vector left, Vector right)=> left.Equals(right);
+
+    public static bool operator !=(Vector left, Vector right) => !(left == right);
 }

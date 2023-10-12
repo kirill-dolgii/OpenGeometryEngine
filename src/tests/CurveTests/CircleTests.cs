@@ -21,7 +21,7 @@ public class CircleTests
         Assert.That(doublePiEval.Param, Is.EqualTo(0));
         Assert.That(doublePiEval.Point, Is.EqualTo(new Point(1, 0, 0)));        
         Assert.That(angle90Eval.Param, Is.EqualTo(Math.PI / 2));
-        Assert.IsTrue((angle90Eval.Point - new Point(0, 1, 0)).Magnitude <= Constants.Tolerance);
+        Assert.IsTrue(angle90Eval.Point == new Point(0, 1, 0));
     }
 
 }
