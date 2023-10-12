@@ -24,10 +24,7 @@ public class Line : Curve
     /// <param name="origin">The origin point of the line.</param>
     /// <param name="direction">The direction vector of the line.</param>
     public Line(Point origin, Vector direction) : base(new Parametrization(Bounds.Unbounded, Form.Open))
-    {
-        Origin = origin;
-        Direction = direction.Normalize();
-    }
+        => (Origin, Direction) = (origin, direction);
 
     public override CurveEvaluation ProjectPoint(Point point)
     {
@@ -35,13 +32,10 @@ public class Line : Curve
         var t = Vector.Dot(originToPoint, Direction);
         return new CurveEvaluation(t, Evaluate(t).Point);
     }
-
-    public override Curve CreateTransformedCopy(Matrix transformationMatrix) =>
-        new Line(transformationMatrix * Origin, transformationMatrix * Direction);
         
-    public override bool IsCoincident(IGeometry otherGeometry)
+    public override bool IsCoincident(Curve otherCurve)
     {
-        var otherLine = (Line) otherGeometry;
+        var otherLine = otherCurve as Line;
         if (otherLine == null) return false;
         return (Origin - otherLine.Origin).Magnitude <= Constants.Tolerance &&
                (Direction - otherLine.Direction).Magnitude <= Constants.Tolerance;
@@ -57,7 +51,6 @@ public class Line : Curve
             case Circle circle:
                 return LineCircleIntersection.LineIntersectCircle(this, circle);
         }
-
         throw new NotImplementedException();
     }
 
@@ -68,7 +61,8 @@ public class Line : Curve
     /// <returns>Evaluated point at the specified parameter.</returns>
     public override CurveEvaluation Evaluate(double param)
     {
-        if (!Parametrization.Bounds.ContainsParam(param)) throw new ArgumentException("param is not within bounds", nameof(param));
+        if (!Parametrization.Bounds.ContainsParam(param)) 
+            throw new ArgumentException("param is not within bounds", nameof(param));
         return new CurveEvaluation(param, Origin + Direction * param);
     }
 }

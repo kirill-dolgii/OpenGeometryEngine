@@ -11,31 +11,33 @@ public class Circle : Curve, IHasFrame, IHasPlane
     public double Radius { get; }
     public Frame Frame { get; }
 
-    public Circle(Frame frame, double radius) : base(new Parametrization(new Bounds(0, 2 * Math.E), Form.Closed))
+    public Circle(Frame frame, double radius) : base(new Parametrization(new Bounds(0, 2 * Math.E), 
+                                                                         Form.Periodic))
         => (Frame, Radius, Plane) = (frame, radius, new Plane(frame));
 
     public override CurveEvaluation ProjectPoint(Point point)
     {
-        var pointOnPlane = Plane.ContainsPoint(point) ? point : Plane.ProjectPoint(point);
+        var pointOnPlane = Plane.ContainsPoint(point) ? point : Plane.ProjectPoint(point);         
         if ((pointOnPlane - Center).Magnitude <= Constants.Tolerance) return Evaluate(0);
         var centerToPointOnPlaneVector = pointOnPlane - Center;
         var projection = centerToPointOnPlaneVector * Radius;
-        return new CurveEvaluation(Frame.DirX.SignedAngle(projection, Frame.DirZ), new Point(projection.X, projection.Y, projection.Z));
+        return new CurveEvaluation(Frame.DirX.SignedAngle(projection, Frame.DirZ), 
+                                   new Point(projection.X, projection.Y, projection.Z));
     }
 
-    public override Curve CreateTransformedCopy(Matrix transformationMatrix)
+    public override bool IsCoincident(Curve otherCurve)
     {
-        throw new System.NotImplementedException();
+        var otherCircle = otherCurve as Circle;
+        if (otherCircle == null) return false;
+        return (Center - otherCircle.Center).Magnitude <= Constants.Tolerance &&
+               Radius - otherCircle.Radius <= Constants.Tolerance;
+
     }
 
-    public override bool IsCoincident(IGeometry otherGeometry)
+    public override ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> 
+        IntersectCurve(Curve otherCurve)
     {
-        throw new System.NotImplementedException();
-    }
-
-    public override ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> IntersectCurve(Curve otherCurve)
-    {
-        if (otherCurve == null) throw new System.ArgumentNullException(nameof(otherCurve));
+        if (otherCurve == null) throw new ArgumentNullException(nameof(otherCurve));
         return otherCurve switch
         {
             Line line => LineCircleIntersection.LineIntersectCircle(line, this),
@@ -52,5 +54,4 @@ public class Circle : Curve, IHasFrame, IHasPlane
         var matrix = Matrix.CreateRotation(Frame.DirZ, param % (2 * Math.PI));
         return new CurveEvaluation(param, matrix * startPoint);
     }
-        
 }
