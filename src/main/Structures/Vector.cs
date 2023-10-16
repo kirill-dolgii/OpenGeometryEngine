@@ -92,16 +92,13 @@ public readonly struct Vector : IEquatable<Vector>
     public Vector Normalize() => new Vector(X / Magnitude, Y / Magnitude, Z / Magnitude);
 
     public bool IsParallel(Vector other)
-        => Accuracy.AngleIsZero(Vector.Dot(other, this.Normalize()));
+        => Accuracy.AngleIsZero(Angle(other));
 
     public double Angle(Vector other)
     {
-        double dot = Dot(this, other);
-        double magnitudeProduct = Magnitude * other.Magnitude;
-        // Ensure that the dot product is within the valid range of [-1, 1]
-        dot = dot.Clamp(-1, 1);
-        // Calculate the angle in radians
-        return Math.Acos(dot / magnitudeProduct);
+        var rawNum = Dot(this, other) / (Magnitude * other.Magnitude);
+        var checkNum = rawNum.Clamp(-1, 1);
+        return Math.Acos(checkNum);
     }
 
     public double SignedAngle(Vector other, Vector axis)

@@ -21,6 +21,12 @@ public static class Accuracy
     public static bool LengthIsZero(double value)
         => Math.Abs(value) < LinearTolerance;
 
+    /// <summary>
+    /// 1 => a > b, -1 => a < b, 0 => a == b
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    /// <returns></returns>
     public static int CompareLength(double a, double b)
     {
         var difference = a - b;
@@ -43,4 +49,24 @@ public static class Accuracy
 
     public static bool EqualAngles(double a, double b)
         => CompareLength(a, b) == 0;
+
+    public static bool WithinLengthBounds(Bounds bounds, double param)
+    {
+        if (bounds.Equals(Bounds.Unbounded)) return true;
+        var withinStart = bounds.Start.HasValue &&
+            Accuracy.CompareLength(param, bounds.Start.Value) == 1;
+        var withinEnd = bounds.End.HasValue &&
+            Accuracy.CompareLength(bounds.End.Value, param) == 1;
+        return withinStart && withinEnd;
+    }
+
+    public static bool WithinAngleBounds(Bounds bounds, double param)
+    {
+        if (bounds.Equals(Bounds.Unbounded)) return true;
+        var withinStart = bounds.Start.HasValue &&
+            Accuracy.CompareAngles(param, bounds.Start.Value) == 1;
+        var withinEnd = bounds.End.HasValue &&
+            Accuracy.CompareAngles(bounds.End.Value, param) == 1;
+        return withinStart && withinEnd;
+    }
 }

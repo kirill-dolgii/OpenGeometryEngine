@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using OpenGeometryEngine.Intersection;
 
 namespace OpenGeometryEngine;
@@ -38,7 +39,7 @@ public class Line : Curve
         var otherLine = otherCurve as Line;
         if (otherLine == null) return false;
         return Origin == otherLine.Origin &&
-               Direction == otherLine.Direction;
+               Direction.IsParallel(otherLine.Direction);
     }
 
     public override ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> IntersectCurve(Curve otherCurve)
@@ -54,10 +55,8 @@ public class Line : Curve
         throw new NotImplementedException();
     }
 
-    public override bool ContainsParam(double param)
-    {
-        throw new NotImplementedException();
-    }
+    public override bool ContainsParam(double param) 
+        => Accuracy.WithinAngleBounds(Parametrization.Bounds, param);
 
     /// <summary>
     /// Evaluates the line at the given parameter.

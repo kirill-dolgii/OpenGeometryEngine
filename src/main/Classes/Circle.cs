@@ -56,7 +56,5 @@ public class Circle : Curve, IHasFrame, IHasPlane
     }
 
     public override bool ContainsParam(double param)
-    {
-        throw new NotImplementedException();
-    }
+        => Accuracy.WithinAngleBounds(Parametrization.Bounds, param);
 }
