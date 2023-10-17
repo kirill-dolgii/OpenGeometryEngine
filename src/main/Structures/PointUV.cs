@@ -1,11 +1,22 @@
+using System;
+
 namespace OpenGeometryEngine;
 
 public readonly struct PointUV
 {
-    public double U { get; }
-    public double V { get; }
+    public readonly double U;
+    public readonly double V;
 
-    public static PointUV Zero => new PointUV(0, 0);
+    public readonly VectorUV Vector;
 
-    public PointUV(double u, double v) => (U, V) = (u, v);
+    public static PointUV Zero => new(0, 0);
+
+    public PointUV(double u, double v)
+    {
+        (U, V) = (u, v);
+        Vector = new(u, v);
+    }
+
+    public static PointUV operator +(PointUV pointUv, VectorUV vectorUv)
+        => new(pointUv.U + vectorUv.U, pointUv.V + vectorUv.V);
 }
