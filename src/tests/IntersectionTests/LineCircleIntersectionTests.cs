@@ -9,7 +9,7 @@ public class LineCircleIntersectionTests
     public void LINE_INTERSECT_CIRCLE_2_POINTS()
     {
         var line = new Line(Point.Origin, new Vector(0, 1, 0));
-        var circle = new Circle(Frame.World, 1);
+        var circle = Circle.Create(Frame.World, 1);
         var inters = LineIntersectCircle(line, circle);
         Assert.That(inters, Has.Count.EqualTo(2));
 
@@ -30,7 +30,7 @@ public class LineCircleIntersectionTests
     public void LINE_INTERSECT_CIRCLE_1_POINT()
     {
         var line = new Line(new Point(0, 1, 1), new Vector(0, 0, 1));
-        var circle = new Circle(Frame.World, 1);
+        var circle = Circle.Create(Frame.World, 1);
         var inters = LineIntersectCircle(line, circle);
 
         Assert.That(inters, Has.Count.EqualTo(1));

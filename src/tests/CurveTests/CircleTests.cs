@@ -12,7 +12,7 @@ public class CircleTests
     [Test]
     public void TEST_EVALUATE()
     {
-        var circle = new Circle(Frame.World, 1);
+        var circle = Circle.Create(Frame.World, 1);
         var zeroEval = circle.Evaluate(0);
         var doublePiEval = circle.Evaluate(Math.PI * 2);
         var angle90Eval = circle.Evaluate(Math.PI / 2);
