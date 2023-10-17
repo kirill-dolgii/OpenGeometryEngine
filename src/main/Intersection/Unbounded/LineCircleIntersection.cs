@@ -1,27 +1,27 @@
-using static OpenGeometryEngine.Extensions.VectorExtensions;
-using static OpenGeometryEngine.Intersection.LinePlaneIntersection;
+using static OpenGeometryEngine.Intersection.Unbounded.LinePlaneIntersection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OpenGeometryEngine.Intersection;
+namespace OpenGeometryEngine.Intersection.Unbounded;
 
 internal static class LineCircleIntersection
 {
     public static ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> LineIntersectCircle(Line line, Circle circle)
     {
+        if (line == null) throw new ArgumentNullException("line is null");
+        if (circle == null) throw new ArgumentException("circle is null");
         var ret = new List<IntersectionPoint<CurveEvaluation, CurveEvaluation>>();
         if (PlaneContainsLine(circle.Plane, line))
         {
-            var lineToCircleOrigin = circle.Center - line.Origin;
-            var proj = line.ProjectPoint(lineToCircleOrigin.ToPoint());
+            var proj = line.ProjectPoint(circle.Center);
             var distance = (proj.Point - circle.Center).Magnitude;
             if (Accuracy.CompareLength(circle.Radius, distance) == 1)
             {
-                var offset = (float) Math.Sqrt(circle.Radius * circle.Radius - distance * distance); // Pythagoras triangle
+                var offset = (float)Math.Sqrt(circle.Radius * circle.Radius - distance * distance); // Pythagoras triangle
                 var p1 = proj.Point + line.Direction * offset;
                 var p2 = proj.Point - line.Direction * offset;
-                ret.Add(new(new CurveEvaluation(offset, p1), circle.ProjectPoint(p1))); 
+                ret.Add(new(new CurveEvaluation(offset, p1), circle.ProjectPoint(p1)));
                 ret.Add(new(new CurveEvaluation(-offset, p2), circle.ProjectPoint(p2)));
             }
             else if (Accuracy.EqualLengths(circle.Radius, distance))

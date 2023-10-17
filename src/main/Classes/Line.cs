@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using OpenGeometryEngine.Intersection;
+using OpenGeometryEngine.Intersection.Unbounded;
 
 namespace OpenGeometryEngine;
 
@@ -19,13 +18,15 @@ public sealed class Line : Curve
     /// </summary>
     public Vector Direction { get; }
 
+    private Line(Point origin, Vector direction) : base(new Parametrization(Bounds.Unbounded, Form.Open))
+        => (Origin, Direction) = (origin, direction);
+
     /// <summary>
     /// Initializes a new Line instance with the specified origin and direction.
     /// </summary>
     /// <param name="origin">The origin point of the line.</param>
     /// <param name="direction">The direction vector of the line.</param>
-    public Line(Point origin, Vector direction) : base(new Parametrization(Bounds.Unbounded, Form.Open))
-        => (Origin, Direction) = (origin, direction);
+    public static Line Create(Point origin, Vector direction) => new (origin, direction.Normalize());
 
     public override CurveEvaluation ProjectPoint(Point point)
     {

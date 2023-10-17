@@ -1,4 +1,4 @@
-using OpenGeometryEngine.Intersection;
+using OpenGeometryEngine.Intersection.Unbounded;
 using System;
 using System.Collections.Generic;
 

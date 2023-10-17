@@ -1,5 +1,5 @@
 using OpenGeometryEngine;
-using static OpenGeometryEngine.Intersection.LineCircleIntersection;
+using static OpenGeometryEngine.Intersection.Unbounded.LineCircleIntersection;
 
 namespace OpenGeometryEngineTests.IntersectionTests;
 
@@ -8,7 +8,7 @@ public class LineCircleIntersectionTests
     [Test]
     public void LINE_INTERSECT_CIRCLE_2_POINTS()
     {
-        var line = new Line(Point.Origin, new Vector(0, 1, 0));
+        var line = Line.Create(Point.Origin, new Vector(0, 1, 0));
         var circle = Circle.Create(Frame.World, 1);
         var inters = LineIntersectCircle(line, circle);
         Assert.That(inters, Has.Count.EqualTo(2));
@@ -29,7 +29,7 @@ public class LineCircleIntersectionTests
     [Test]
     public void LINE_INTERSECT_CIRCLE_1_POINT()
     {
-        var line = new Line(new Point(0, 1, 1), new Vector(0, 0, 1));
+        var line = Line.Create(new Point(0, 1, 1), new Vector(0, 0, 1));
         var circle = Circle.Create(Frame.World, 1);
         var inters = LineIntersectCircle(line, circle);
 
