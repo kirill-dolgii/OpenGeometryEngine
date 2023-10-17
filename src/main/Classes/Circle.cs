@@ -4,16 +4,18 @@ using System.Collections.Generic;
 
 namespace OpenGeometryEngine;
 
-public class Circle : Curve, IHasFrame, IHasPlane
+public sealed class Circle : Curve, IHasFrame, IHasPlane
 {
     public Plane Plane { get; }
     public Point Center => Frame.Origin;
     public double Radius { get; }
     public Frame Frame { get; }
 
-    public Circle(Frame frame, double radius) : base(new Parametrization(new Bounds(0, 2 * Math.E), 
+    private Circle(Frame frame, double radius) : base(new Parametrization(new Bounds(0, 2 * Math.E), 
                                                                          Form.Periodic))
         => (Frame, Radius, Plane) = (frame, radius, new Plane(frame));
+
+    public static Circle Create(Frame frame, double radius) => new(frame, radius);
 
     public override CurveEvaluation ProjectPoint(Point point)
     {

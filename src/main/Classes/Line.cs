@@ -8,7 +8,7 @@ namespace OpenGeometryEngine;
 /// <summary>
 /// Represents an infinite 3D line defined by an origin point and a direction vector.
 /// </summary>
-public class Line : Curve
+public sealed class Line : Curve
 {
     /// <summary>
     /// The origin point of the line.
