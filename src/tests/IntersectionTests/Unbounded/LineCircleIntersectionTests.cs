@@ -1,7 +1,7 @@
 using OpenGeometryEngine;
 using static OpenGeometryEngine.Intersection.Unbounded.LineCircleIntersection;
 
-namespace OpenGeometryEngineTests.IntersectionTests;
+namespace OpenGeometryEngineTests.IntersectionTests.Unbounded;
 
 public class LineCircleIntersectionTests
 {

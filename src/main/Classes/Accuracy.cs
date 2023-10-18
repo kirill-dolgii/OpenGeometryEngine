@@ -69,4 +69,19 @@ public static class Accuracy
             Accuracy.CompareAngles(bounds.End.Value, param) == 1;
         return withinStart && withinEnd;
     }
+
+    private static bool WithinRange(double start, double end, 
+                                    double param, Func<double, double, int> compFunc)
+    {
+        if (compFunc == null) throw new ArgumentNullException(nameof(compFunc));
+        var withinStart = compFunc.Invoke(param, start) == 1;
+        var withinEnd = compFunc.Invoke(end, param) == 1;
+        return withinStart && withinEnd;
+    }
+
+    public static bool WithinLengthInterval(Interval interval, double param)
+        => WithinRange(interval.Start, interval.End, param, CompareLength);
+
+    public static bool WithinAngleInterval(Interval interval, double param)
+        => WithinRange(interval.Start, interval.End, param, CompareAngles);
 }

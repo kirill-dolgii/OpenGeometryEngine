@@ -1,7 +1,7 @@
 ﻿using OpenGeometryEngine.Exceptions;
 using System;
 
-namespace OpenGeometryEngine.Structures;
+namespace OpenGeometryEngine;
 
 /// <summary>
 /// Represents a numerical interval defined by a start and end point.

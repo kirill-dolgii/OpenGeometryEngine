@@ -1,6 +1,6 @@
 ﻿using OpenGeometryEngine;
 
-namespace OpenGeometryEngineTests.IntersectionTests;
+namespace OpenGeometryEngineTests.IntersectionTests.Unbounded;
 
 [TestFixture]
 public class LineLineIntersection
