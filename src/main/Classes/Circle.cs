@@ -21,9 +21,9 @@ public sealed class Circle : Curve, IHasFrame, IHasPlane
     {
         var pointOnPlane = Plane.ContainsPoint(point) ? point : Plane.ProjectPoint(point);         
         if (pointOnPlane == Center) return Evaluate(0);
-        var centerToPointOnPlaneVector = pointOnPlane - Center;
-        var projection = centerToPointOnPlaneVector * Radius;
-        return new CurveEvaluation(Frame.DirX.SignedAngle(projection, Frame.DirZ), 
+        var centerToPointOnPlaneVector = (pointOnPlane - Center).Normalize();
+        var projection = centerToPointOnPlaneVector * Radius + Center.Vector;
+        return new CurveEvaluation(Frame.DirX.SignedAngle(projection - Center.Vector, Frame.DirZ), 
                                    new Point(projection.X, projection.Y, projection.Z));
     }
 

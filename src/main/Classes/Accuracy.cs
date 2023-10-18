@@ -48,7 +48,7 @@ public static class Accuracy
     }
 
     public static bool EqualAngles(double a, double b)
-        => CompareLength(a, b) == 0;
+        => CompareAngles(a, b) == 0;
 
     public static bool WithinLengthBounds(Bounds bounds, double param)
     {

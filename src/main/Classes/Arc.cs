@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenGeometryEngine.Exceptions;
+using OpenGeometryEngine.Intersection.Unbounded;
 
 namespace OpenGeometryEngine.Classes;
 
@@ -24,6 +26,17 @@ public sealed class Arc : CurveSegment
 
     public override ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> IntersectCurve(CurveSegment otherSegment)
     {
+        if (otherSegment == null) throw new ArgumentNullException("otherSegment was null");
+        switch (otherSegment)
+        {
+            case (LineSegment lineSegment):
+            {
+                var inters = LineCircleIntersection.LineIntersectCircle((Line)lineSegment.Geometry, (Circle)Geometry);
+                    return inters.Where(ip => Accuracy.WithinLengthInterval(lineSegment.Interval, ip.FirstEvaluation.Param) &&
+                                              Accuracy.WithinAngleInterval(Interval, ip.SecondEvaluation.Param))
+                                 .ToList();
+            };
+        }
         throw new NotImplementedException();
     }
 

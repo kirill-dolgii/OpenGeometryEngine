@@ -32,7 +32,7 @@ public sealed class Line : Curve
     {
         var originToPoint = point - Origin;
         var t = Vector.Dot(originToPoint, Direction);
-        return new CurveEvaluation(t, Evaluate(t).Point);
+        return Evaluate(t);
     }
         
     public override bool IsCoincident(Curve otherCurve)

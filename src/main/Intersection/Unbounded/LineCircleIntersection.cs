@@ -21,8 +21,8 @@ internal static class LineCircleIntersection
                 var offset = (float)Math.Sqrt(circle.Radius * circle.Radius - distance * distance); // Pythagoras triangle
                 var p1 = proj.Point + line.Direction * offset;
                 var p2 = proj.Point - line.Direction * offset;
-                ret.Add(new(new CurveEvaluation(offset, p1), circle.ProjectPoint(p1)));
-                ret.Add(new(new CurveEvaluation(-offset, p2), circle.ProjectPoint(p2)));
+                ret.Add(new(line.ProjectPoint(p1), circle.ProjectPoint(p1)));
+                ret.Add(new(line.ProjectPoint(p2), circle.ProjectPoint(p2)));
             }
             else if (Accuracy.EqualLengths(circle.Radius, distance))
                 ret.Add(new(proj, circle.ProjectPoint(proj.Point)));
