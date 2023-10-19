@@ -45,6 +45,15 @@ public readonly struct Point : IEquatable<Point>
     public static Point operator +(Point point, Vector vector) => 
         new (point.X + vector.X, point.Y + vector.Y, point.Z + vector.Z);
 
+    public static Point operator *(Point point, double scale)
+        => new(point.X * scale, point.Y * scale, point.Z * scale);
+
+    public static Point operator /(Point point, double scale)
+    {
+        if (scale == 0) throw new DivideByZeroException("scale was zero.");
+        return new Point(point.X / scale, point.Y / scale, point.Z / scale);
+    }
+
     /// <summary>
     /// Subtracts one point from another, resulting in a new vector.
     /// </summary>
