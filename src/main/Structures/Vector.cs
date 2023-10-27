@@ -134,4 +134,6 @@ public readonly struct Vector : IEquatable<Vector>
     public static bool operator ==(Vector left, Vector right)=> left.Equals(right);
 
     public static bool operator !=(Vector left, Vector right) => !(left == right);
+
+    public override string ToString() => $"Vector [{X:F7}, {Y:F7}, {Z:F7}]";
 }

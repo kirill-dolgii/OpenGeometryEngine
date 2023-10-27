@@ -1,6 +1,4 @@
 ﻿using OpenGeometryEngine;
-using OpenGeometryEngine.Classes;
-
 namespace OpenGeometryEngineTests.IntersectionTests.Bounded;
 
 [TestFixture]

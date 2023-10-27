@@ -33,4 +33,6 @@ public readonly struct Frame
     /// <param name="dirZ">The Z-axis vector of the coordinate system.</param>
     public Frame(Point origin, Vector dirX, Vector dirY, Vector dirZ) => 
         (Origin, DirX, DirY, DirZ) = (origin, dirX.Normalize(), dirY.Normalize(), dirZ.Normalize());
+
+    public override string ToString() => $"Frame {Origin}, [{DirX}, {DirY}, {DirZ}]";
 }

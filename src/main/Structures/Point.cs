@@ -89,4 +89,6 @@ public readonly struct Point : IEquatable<Point>
     public static bool operator ==(Point a, Point b) => a.Equals(b);
 
     public static bool operator !=(Point a, Point b) => !(a == b);
+
+    public override string ToString() => $"Point [{X:F7}, {Y:F7}, {Z:F7}";
 }
