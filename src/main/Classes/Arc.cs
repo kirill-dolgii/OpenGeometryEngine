@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using OpenGeometryEngine.Exceptions;
 using OpenGeometryEngine.Intersection.Unbounded;
+using OpenGeometryEngine.Structures;
 
-namespace OpenGeometryEngine.Classes;
+namespace OpenGeometryEngine;
 
 public sealed class Arc : CurveSegment
 {
