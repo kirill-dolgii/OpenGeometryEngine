@@ -7,9 +7,23 @@ namespace OpenGeometryEngine;
 
 public readonly struct Matrix
 {
+    public static Matrix Identity => new() 
+    {
+        _data =
+        {
+            [0, 0] = 1,
+            [1, 1] = 1,
+            [2, 2] = 1
+        }
+    };
+
     private readonly double[,] _data;
 
-    public Matrix() => _data = new double[4, 4];
+    public Matrix()
+    {
+        _data = new double[4, 4];
+        _data[3, 3] = 1;
+    }
 
     public static Matrix CreateScale(double sx, double sy, double sz)
     {
@@ -41,6 +55,9 @@ public readonly struct Matrix
             }
         };
     }
+
+    public static Matrix CreateTranslation(Vector translation) 
+        => CreateTranslation(translation.X, translation.Y, translation.Z);
 
     public static Matrix CreateRotation(Vector direction, double angle)
     {
@@ -136,7 +153,6 @@ public readonly struct Matrix
         };
     }
 
-
     public static Point operator *(Matrix transformationMatrix, Point point)
     {
         var pointData = new[] { point.X, point.Y, point.Z, 1 };
@@ -184,25 +200,68 @@ public readonly struct Matrix
 
     public static Matrix CreateMapping(Frame frame)
     {
-        var world = Frame.World;
-        var rot = CreateRotation(frame.DirX, frame.DirY, frame.DirZ).Transpose();
-        var trans = CreateTranslation(frame.Origin.X, frame.Origin.Y, frame.Origin.Z);
+        var rot = CreateRotation(frame.DirX, frame.DirY, frame.DirZ).InverseRotation();
+        var trans = CreateTranslation(frame.Origin.Vector);
         return trans * rot;
     }
 
-    public Matrix Transpose()
+    private Matrix InverseRotation()
     {
         var transposedMatrix = new Matrix();
+        CopyData(transposedMatrix._data, 3, 3);
+        transposedMatrix.Transpose();
+        return transposedMatrix;
+    }
 
-        for (int i = 0; i < 4; i++)
+    private Matrix InverseTranslation() 
+        => CreateTranslation(- _data[0, 3], - _data[1, 3], - _data[2, 3]);
+
+    public Matrix Inverse()
+    {
+        var invRot = ExtractRotation().InverseRotation();
+        var det = ExtractRotation().DetRotation();
+        for (int i = 0; i < 3; i++)
         {
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < 3; j++)
             {
-                transposedMatrix._data[i, j] = _data[j, i];
+                invRot._data[i, j] /= det;
             }
         }
 
-        return transposedMatrix;
+        var invTransVec = (invRot * (ExtractTranslation() * new Point(0, 0, 0)));
+        return CreateTranslation(-invTransVec.X, -invTransVec.Y, -invTransVec.Z) * invRot;
+    }
+
+    private double DetRotation()
+    {
+        double det = 0;
+        for (int i = 0; i < 3; i++)
+        {
+            det += _data[0, i] * (_data[1, (i + 1) % 3] * _data[2, (i + 2) % 3] - 
+                                  _data[1, (i + 2) % 3] * _data[2, (i + 1) % 3]);
+        }
+        return det;
+    }
+
+    public Matrix ExtractTranslation() 
+        => CreateTranslation(_data[0, 3], _data[1, 3], _data[2, 3]);
+
+    public Matrix ExtractRotation()
+    {
+        var rot = new Matrix();
+        CopyData(rot._data, 3, 3);
+        return rot;
+    }
+
+    public void Transpose()
+    {
+        for (int i = 1; i < 4; i++)
+        {
+            for (int j = 0; j < i; j++)
+            {
+                (_data[i, j], _data[j, i]) = (_data[j, i], _data[i, j]);
+            }
+        }
     }
 
     public override string ToString()
@@ -215,4 +274,16 @@ public readonly struct Matrix
         }
         return sb.ToString();
     }
+
+    private void CopyData(double[,] data, int maxI = 4, int maxJ = 4)
+    {
+        for (int i = 0; i < maxI; i++)
+        {
+            for (int j = 0; j < maxJ; j++)
+            {
+                data[i, j] = _data[i, j];
+            }
+        }
+    }
+
 }

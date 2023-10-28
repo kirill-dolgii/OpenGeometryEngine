@@ -31,5 +31,37 @@ public class MatrixTests
         Assert.That(dirX, Is.EqualTo(frameDirX));
         Assert.That(dirY, Is.EqualTo(frameDirY));
         Assert.That(dirZ, Is.EqualTo(frameDirZ));
+
+        var inverseMapping = mapping.Inverse();
+
+        var inverseOrigin = inverseMapping * origin;
+
+        var inverseDirX = inverseMapping * dirX;
+        var inverseDirY = inverseMapping * dirY;
+        var inverseDirZ = inverseMapping * dirZ;
+
+        Assert.That(inverseOrigin, Is.EqualTo(Point.Origin));
+
+        Assert.That(inverseDirX, Is.EqualTo(Frame.World.DirX));
+        Assert.That(inverseDirY, Is.EqualTo(Frame.World.DirY));
+        Assert.That(inverseDirZ, Is.EqualTo(Frame.World.DirZ));
+    }
+
+    [Test]
+    public void INVERSE_ROTATE_AND_TRANSLATE()
+    {
+        double angle = 30 / 180.0 * Math.PI;
+        var rot = Matrix.CreateRotation(Vector.UnitZ, angle);
+        var transVec = new Vector(.1, .2, .3);
+        var trans = Matrix.CreateTranslation(transVec.X, transVec.Y, transVec.Z);
+
+        var resulting = trans * rot;
+        var inverse = resulting.Inverse();
+
+        var p = new Point(1, 0, 0);
+        var newP = resulting * p;
+        var inversedNewP = inverse * newP;
+
+        Assert.That(inversedNewP, Is.EqualTo(p));
     }
 }
