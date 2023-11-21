@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Xml.Serialization;
 using OpenGeometryEngine.Exceptions;
 using OpenGeometryEngine.Intersection.Unbounded;
 using OpenGeometryEngine.Structures;
@@ -26,6 +27,33 @@ public sealed class Arc : CurveSegment
         return arc;
     }
 
+    public override TCurve GetGeometry<TCurve>()
+    {
+        var geomType = Geometry.GetType();
+        if (typeof(TCurve) != geomType) return null;
+        return (TCurve) Geometry;
+    }
+
+    public override Box GetBoundingBox()
+    {
+        var circle = GetGeometry<Circle>();
+        var transform = Matrix.CreateMapping(circle.Frame);
+        var inverseTransform = transform.Inverse();
+
+        var angle = circle.Frame.DirX.SignedAngle(Frame.World.DirX, 
+                                                  Vector.Cross(circle.Frame.DirX, Frame.World.DirX));
+
+        var centeredCircle = circle.CreateTransformedCopy(inverseTransform);
+        var cornerEvals = new[] { 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2 };
+        var cornerPoints = cornerEvals.Where(param => Accuracy.WithinAngleInterval(Interval, param))
+                                      .Select(param => centeredCircle.Evaluate(param + angle).Point);
+        var boxPoints = new List<Point> { centeredCircle.Evaluate(Interval.Start + angle).Point, 
+                                          centeredCircle.Evaluate(Interval.End + angle).Point };
+        boxPoints.AddRange(cornerPoints);
+        var mappedBoxPoints = boxPoints.Select(p => transform * p).ToList();
+        return Box.Create(mappedBoxPoints);
+    }
+
     public override ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> IntersectCurve(CurveSegment otherSegment)
     {
         if (otherSegment == null) throw new ArgumentNullException("otherSegment was null");
@@ -40,6 +68,13 @@ public sealed class Arc : CurveSegment
             };
         }
         throw new NotImplementedException();
+    }
+
+    public override CurveSegment CreateTransformedCopy(Matrix matrix)
+    {
+        var newCircle = ((Circle)Geometry).CreateTransformedCopy(matrix);
+        var newArc = Arc.Create(newCircle, Interval);
+        return newArc;
     }
 
     public override bool IsCoincident(CurveSegment otherSegment)

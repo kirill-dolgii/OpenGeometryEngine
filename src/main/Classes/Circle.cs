@@ -11,11 +11,16 @@ public sealed class Circle : Curve, IHasFrame, IHasPlane
     public double Radius { get; }
     public Frame Frame { get; }
 
-    private Circle(Frame frame, double radius) : base(new Parametrization(new Bounds(0, 2 * Math.E), 
+    private Circle(Frame frame, double radius) : base(new Parametrization(new Bounds(0, 2 * Math.PI), 
                                                                          Form.Periodic))
         => (Frame, Radius, Plane) = (frame, radius, new Plane(frame));
 
-    public static Circle Create(Frame frame, double radius) => new(frame, radius);
+    public static Circle Create(Frame frame, double radius)
+    {
+        if (radius < 0 || Accuracy.LengthIsZero(radius)) 
+            throw new ArgumentException("circle must be a positive non-zero value");
+        return new Circle(frame, radius);
+    }
 
     public override CurveEvaluation ProjectPoint(Point point)
     {
@@ -49,8 +54,7 @@ public sealed class Circle : Curve, IHasFrame, IHasPlane
 
     public override CurveEvaluation Evaluate(double param)
     {
-        var start = (Frame.DirX * Radius);
-        var startPoint = new Point(start.X, start.Y, start.Z);
+        var startPoint = Frame.Origin + Frame.DirX * Radius;
         if (Accuracy.EqualAngles(2 * Math.PI, param)) param = 0;
         if (Accuracy.AngleIsZero(param)) return new CurveEvaluation(0, startPoint);
         var matrix = Matrix.CreateRotation(Frame.DirZ, param % (2 * Math.PI));
@@ -59,4 +63,11 @@ public sealed class Circle : Curve, IHasFrame, IHasPlane
 
     public override bool ContainsParam(double param)
         => Accuracy.WithinAngleBounds(Parametrization.Bounds, param);
+
+    public Circle CreateTransformedCopy(Matrix matrix)
+    {
+        var newFrame = matrix * Frame;
+        var ret = Circle.Create(newFrame, Radius);
+        return ret;
+    }
 }

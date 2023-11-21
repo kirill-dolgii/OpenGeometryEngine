@@ -74,8 +74,8 @@ public static class Accuracy
                                     double param, Func<double, double, int> compFunc)
     {
         if (compFunc == null) throw new ArgumentNullException(nameof(compFunc));
-        var withinStart = compFunc.Invoke(param, start) == 1;
-        var withinEnd = compFunc.Invoke(end, param) == 1;
+        var withinStart = compFunc.Invoke(param, start) >= 0;
+        var withinEnd = compFunc.Invoke(end, param) >= 0;
         return withinStart && withinEnd;
     }
 

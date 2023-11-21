@@ -167,6 +167,15 @@ public readonly struct Matrix
         return new Vector(vectorData[0], vectorData[1], vectorData[2]);
     }
 
+    public static Frame operator *(Matrix transformationMatrix, Frame frame)
+    {
+        var newOrigin = transformationMatrix * frame.Origin;
+        var newDirX = transformationMatrix * frame.DirX;
+        var newDirY = transformationMatrix * frame.DirY;
+        var newDirz = transformationMatrix * frame.DirZ;
+        return new Frame(newOrigin, newDirX, newDirY, newDirz);
+    }
+
     private static void Multiply(Matrix matrix, ref double[] data)
     {
         if (data.Length != 4) throw new ArgumentException("data length should be 4.");
@@ -216,7 +225,7 @@ public readonly struct Matrix
     private Matrix InverseTranslation() 
         => CreateTranslation(- _data[0, 3], - _data[1, 3], - _data[2, 3]);
 
-    public Matrix Inverse()
+    public Matrix Inverse() 
     {
         var invRot = ExtractRotation().InverseRotation();
         var det = ExtractRotation().DetRotation();

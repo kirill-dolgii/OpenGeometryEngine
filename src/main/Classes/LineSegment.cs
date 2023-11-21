@@ -39,6 +39,16 @@ public sealed class LineSegment : CurveSegment
         throw new NotImplementedException();
     }
 
+    public override TCurve GetGeometry<TCurve>()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Box GetBoundingBox()
+    {
+        throw new NotImplementedException();
+    }
+
     public override bool IsCoincident(CurveSegment otherSegment)
     {
         if (otherSegment == null) throw new ArgumentNullException($"{nameof(otherSegment)} was null");
@@ -49,5 +59,10 @@ public sealed class LineSegment : CurveSegment
         return line.Direction.IsParallel(otherLine.Direction) &&
                StartPoint == otherLineSegment.StartPoint &&
                EndPoint == otherLineSegment.EndPoint;
+    }
+
+    public override CurveSegment CreateTransformedCopy(Matrix matrix)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenGeometryEngine.Structures
 {
@@ -86,6 +88,66 @@ namespace OpenGeometryEngine.Structures
             var minZ = Math.Min(corner1.Z, corner2.Z);
 
             return new Box(new Point(minX, minY, minZ), new Point(maxX, maxY, maxZ));
+        }
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="Box"/> struct from a collection of points.
+        /// </summary>
+        /// <param name="points">The collection of points to create the bounding box from.</param>
+        /// <returns>A new instance of the <see cref="Box"/> struct representing the bounding box.</returns>
+        public static Box Create(ICollection<Point> points)
+        {
+            if (points == null || points.Count == 0)
+                throw new ArgumentException("Points collection cannot be null or empty.");
+
+            // Initialize with the first point
+            Point minCorner = points.First();
+            Point maxCorner = points.First();
+
+            foreach (var point in points)
+            {
+                minCorner = new Point(
+                    Math.Min(minCorner.X, point.X),
+                    Math.Min(minCorner.Y, point.Y),
+                    Math.Min(minCorner.Z, point.Z)
+                );
+
+                maxCorner = new Point(
+                    Math.Max(maxCorner.X, point.X),
+                    Math.Max(maxCorner.Y, point.Y),
+                    Math.Max(maxCorner.Z, point.Z)
+                );
+            }
+
+            return new Box(minCorner, maxCorner);
+        }
+
+        /// <summary>
+        /// Combines two bounding boxes into a new bounding box that encompasses both.
+        /// </summary>
+        /// <param name="box1">The first bounding box.</param>
+        /// <param name="box2">The second bounding box.</param>
+        /// <returns>A new bounding box that contains both input bounding boxes.</returns>
+        public static Box operator &(Box box1, Box box2)
+        {
+            if (box1.IsEmpty)
+                return box2;
+            if (box2.IsEmpty)
+                return box1;
+
+            var combinedMinCorner = new Point(
+                Math.Min(box1.MinCorner.X, box2.MinCorner.X),
+                Math.Min(box1.MinCorner.Y, box2.MinCorner.Y),
+                Math.Min(box1.MinCorner.Z, box2.MinCorner.Z)
+            );
+
+            var combinedMaxCorner = new Point(
+                Math.Max(box1.MaxCorner.X, box2.MaxCorner.X),
+                Math.Max(box1.MaxCorner.Y, box2.MaxCorner.Y),
+                Math.Max(box1.MaxCorner.Z, box2.MaxCorner.Z)
+            );
+
+            return new Box(combinedMinCorner, combinedMaxCorner);
         }
     }
 }
