@@ -47,25 +47,9 @@ namespace OpenGeometryEngine.Structures
         /// an empty box centered at a specific point.
         /// </summary>
         /// <param name="center">The center point of the bounding box.</param>
-        private Box(Point center)
+        private Box(Point center) : this(center, center)
         {
             IsEmpty = true;
-            Center = center;
-            MaxCorner = center;
-            MinCorner = center;
-            Corners = new Point[8];
-            Corners[0] = MinCorner;
-            Corners[1] = new Point(MaxCorner.X, MinCorner.Y, MinCorner.Z);
-            Corners[2] = new Point(MaxCorner.X, MaxCorner.Y, MinCorner.Z);
-            Corners[3] = new Point(MinCorner.X, MaxCorner.Y, MinCorner.Z);
-
-            // Back face
-            Corners[4] = new Point(MinCorner.X, MinCorner.Y, MaxCorner.Z);
-            Corners[5] = new Point(MaxCorner.X, MinCorner.Y, MaxCorner.Z);
-            Corners[6] = MaxCorner;
-            Corners[7] = new Point(MinCorner.X, MaxCorner.Y, MaxCorner.Z);
-
-            Size = new Vector();
         }
 
         /// <summary>
@@ -80,6 +64,18 @@ namespace OpenGeometryEngine.Structures
             MinCorner = minCorner;
             MaxCorner = maxCorner;
             Size = MaxCorner - MinCorner;
+
+            Corners = new Point[8];
+            Corners[0] = MinCorner;
+            Corners[1] = new Point(MaxCorner.X, MinCorner.Y, MinCorner.Z);
+            Corners[2] = new Point(MaxCorner.X, MaxCorner.Y, MinCorner.Z);
+            Corners[3] = new Point(MinCorner.X, MaxCorner.Y, MinCorner.Z);
+
+            // Back face
+            Corners[4] = new Point(MinCorner.X, MinCorner.Y, MaxCorner.Z);
+            Corners[5] = new Point(MaxCorner.X, MinCorner.Y, MaxCorner.Z);
+            Corners[6] = MaxCorner;
+            Corners[7] = new Point(MinCorner.X, MaxCorner.Y, MaxCorner.Z);
         }
 
         /// <summary>
