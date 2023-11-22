@@ -23,6 +23,13 @@ public sealed class LineSegment : CurveSegment
         return segment;
     }
 
+    public static LineSegment Create(Point startPoint, Point endPoint)
+    {
+        if (startPoint == endPoint) throw new ArgumentException("points are equal");
+        var line = Line.Create(startPoint, endPoint - startPoint);
+        return Create(line, new(0, (endPoint - startPoint).Magnitude));
+    }
+
     public override ICollection<IntersectionPoint<CurveEvaluation, CurveEvaluation>> IntersectCurve(CurveSegment otherSegment)
     {
         if (otherSegment == null) throw new ArgumentNullException(nameof(otherSegment));
@@ -44,10 +51,7 @@ public sealed class LineSegment : CurveSegment
         throw new NotImplementedException();
     }
 
-    public override Box GetBoundingBox()
-    {
-        throw new NotImplementedException();
-    }
+    public override Box GetBoundingBox() => Box.Create(StartPoint, EndPoint);
 
     public override bool IsCoincident(CurveSegment otherSegment)
     {
