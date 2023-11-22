@@ -15,8 +15,9 @@ namespace OpenGeometryEngine.Structures
         public readonly Point Center;
 
         /// <summary>
-        /// Gets the corners of the bounding box 
-        /// where Corners[0] is MinCorner and Corners[1] is MaxCorner;
+        /// Gets the vertices of the bounding box cuboid
+        /// where Corners[0] is MinCorner and Corners[7] is MaxCorner.
+        /// Vertices are in counterclockwise direction.
         /// </summary>
         public readonly Point[] Corners;
 
@@ -52,7 +53,18 @@ namespace OpenGeometryEngine.Structures
             Center = center;
             MaxCorner = center;
             MinCorner = center;
-            Corners = new[] { MinCorner, MaxCorner };
+            Corners = new Point[8];
+            Corners[0] = MinCorner;
+            Corners[1] = new Point(MaxCorner.X, MinCorner.Y, MinCorner.Z);
+            Corners[2] = new Point(MaxCorner.X, MaxCorner.Y, MinCorner.Z);
+            Corners[3] = new Point(MinCorner.X, MaxCorner.Y, MinCorner.Z);
+
+            // Back face
+            Corners[4] = new Point(MinCorner.X, MinCorner.Y, MaxCorner.Z);
+            Corners[5] = new Point(MaxCorner.X, MinCorner.Y, MaxCorner.Z);
+            Corners[6] = MaxCorner;
+            Corners[7] = new Point(MinCorner.X, MaxCorner.Y, MaxCorner.Z);
+
             Size = new Vector();
         }
 
@@ -148,6 +160,21 @@ namespace OpenGeometryEngine.Structures
             );
 
             return new Box(combinedMinCorner, combinedMaxCorner);
+        }
+
+        public static Box Unite(IEnumerable<Box> boxes)
+        {
+            if (boxes == null || !boxes.Any())
+                return new Box();
+
+            Box resultBox = boxes.First();
+
+            foreach (var box in boxes.Skip(1))
+            {
+                resultBox = resultBox & box;
+            }
+
+            return resultBox;
         }
     }
 }
