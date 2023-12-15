@@ -15,6 +15,7 @@ public abstract class CurveSegment : ITrimmedCurve
     public Point EndPoint { get; }
 
     public double Length { get; }
+            
     public abstract TCurve GetGeometry<TCurve>() where TCurve : Curve;
 
     protected CurveSegment(Interval interval, Curve geometry, 
@@ -36,5 +37,10 @@ public abstract class CurveSegment : ITrimmedCurve
 
     public abstract CurveSegment CreateTransformedCopy(Matrix matrix);
 
-
+    public bool ContainsPoint(Point point)
+    {
+        var proj = Geometry.ProjectPoint(point);
+        if (!Accuracy.LengthIsZero((proj.Point - point).Magnitude)) return false;
+        return Accuracy.WithinLengthInterval(Interval, proj.Param);
+    }
 }

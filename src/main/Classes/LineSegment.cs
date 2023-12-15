@@ -46,10 +46,7 @@ public sealed class LineSegment : CurveSegment
         throw new NotImplementedException();
     }
 
-    public override TCurve GetGeometry<TCurve>()
-    {
-        throw new NotImplementedException();
-    }
+    public override TCurve GetGeometry<TCurve>() => (TCurve)Geometry;
 
     public override Box GetBoundingBox() => Box.Create(StartPoint, EndPoint);
 
@@ -67,6 +64,9 @@ public sealed class LineSegment : CurveSegment
 
     public override CurveSegment CreateTransformedCopy(Matrix matrix)
     {
-        throw new NotImplementedException();
+        var newOrigin = matrix * ((Line)Geometry).Origin;
+        var newDir = matrix * ((Line)Geometry).Direction;
+        var newGeom = Line.Create(newOrigin, newDir);
+        return LineSegment.Create(newGeom, Interval);
     }
 }
