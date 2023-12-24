@@ -28,9 +28,9 @@ public class MatrixTests
      
         Assert.That(origin, Is.EqualTo(frameOrigin));
 
-        Assert.That(dirX, Is.EqualTo(frameDirX));
-        Assert.That(dirY, Is.EqualTo(frameDirY));
-        Assert.That(dirZ, Is.EqualTo(frameDirZ));
+        Assert.That(dirX, Is.EqualTo(frameDirX.Unit));
+        Assert.That(dirY, Is.EqualTo(frameDirY.Unit));
+        Assert.That(dirZ, Is.EqualTo(frameDirZ.Unit));
 
         var inverseMapping = mapping.Inverse();
 
@@ -51,7 +51,7 @@ public class MatrixTests
     public void INVERSE_ROTATE_AND_TRANSLATE()
     {
         double angle = 30 / 180.0 * Math.PI;
-        var rot = Matrix.CreateRotation(Vector.UnitZ, angle);
+        var rot = Matrix.CreateRotation(Vector.UnitZ.Unit, angle);
         var transVec = new Vector(.1, .2, .3);
         var trans = Matrix.CreateTranslation(transVec.X, transVec.Y, transVec.Z);
 

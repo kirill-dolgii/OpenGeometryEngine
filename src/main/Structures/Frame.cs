@@ -12,17 +12,17 @@ public readonly struct Frame
     /// <summary>
     /// Gets the X-axis unit vector of the coordinate system.
     /// </summary>
-    public Vector DirX { get; }
+    public UnitVec DirX { get; }
 
     /// <summary>
     /// Gets the Y-axis unit vector of the coordinate system.
     /// </summary>
-    public Vector DirY { get; }
+    public UnitVec DirY { get; }
 
     /// <summary>
     /// Gets the Z-axis unit vector of the coordinate system.
     /// </summary>
-    public Vector DirZ { get; }
+    public UnitVec DirZ { get; }
 
     /// <summary>
     /// Initializes a new instance of the Frame struct.
@@ -32,7 +32,11 @@ public readonly struct Frame
     /// <param name="dirY">The Y-axis vector of the coordinate system.</param>
     /// <param name="dirZ">The Z-axis vector of the coordinate system.</param>
     public Frame(Point origin, Vector dirX, Vector dirY, Vector dirZ) => 
-        (Origin, DirX, DirY, DirZ) = (origin, dirX.Normalize(), dirY.Normalize(), dirZ.Normalize());
+        (Origin, DirX, DirY, DirZ) = (origin, dirX.Unit, dirY.Unit, dirZ.Unit);
+
+    public Frame(Point origin, UnitVec dirX, UnitVec dirY, UnitVec dirZ) =>
+        (Origin, DirX, DirY, DirZ) = (origin, dirX, dirY, dirZ);
+
 
     public override string ToString() => $"Frame {Origin}, [{DirX}, {DirY}, {DirZ}]";
 }

@@ -1,5 +1,6 @@
-﻿using OpenGeometryEngine.Exceptions;
+﻿using OpenGeometryEngine.Exceptions.Interval;
 using System;
+using System.ComponentModel;
 
 namespace OpenGeometryEngine;
 
@@ -30,13 +31,29 @@ public struct Interval
     /// <param name="end">The end point of the interval.</param>
     /// <exception cref="ArgumentException">Thrown when either start or end is infinity.</exception>
     /// <exception cref="ReversedIntervalException">Thrown when the end point is less than the start point.</exception>
-    public Interval(double start, double end)
+    public Interval(double start, double end, double tolerance = Accuracy.DefaultDoubleTolerance)
     {
         if (double.IsInfinity(start)) throw new ArgumentException($"{nameof(start)} is infinity");
         if (double.IsInfinity(end)) throw new ArgumentException($"{nameof(end)} is infinity");
-        if (Accuracy.CompareLength(start, end) == 1) throw new ReversedIntervalException();
+        var cmp = Accuracy.CompareWithTolerance(start, end, tolerance);
+        if (cmp == 1) throw new ReversedIntervalException();
+        if (cmp == 0) throw new IntervalEqualBoundsException(nameof(start), nameof(end));
         Start = start;
         End = end;
         Span = end - start;
+    }
+
+    public double Project(double val, double tolerance)
+    {
+        if (double.IsNaN(val)) throw new DoubleIsNanException(nameof(val));
+        if (Accuracy.CompareWithTolerance(val, Start, tolerance) == 1) return Start;
+        if (Accuracy.CompareWithTolerance(val, End, tolerance) == -1) return End;
+        return val;
+    }
+
+    public bool Contains(double param, double tolerance)
+    {
+        if (double.IsNaN(param)) throw new DoubleIsNanException(nameof(param));
+        return Accuracy.WithinRangeWithTolerance(Start, End, param, tolerance);
     }
 }

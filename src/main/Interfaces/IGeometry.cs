@@ -1,8 +1,9 @@
+using System;
+
 namespace OpenGeometryEngine;
 
-public interface IGeometry
+public interface IGeometry : ISpatial, ICloneable, IHasGeometry
 {
-    public bool ContainsPoint(Point point);
-    public bool IsCoincident(IGeometry otherGeometry);
-    public Point ProjectPoint(Point point);
+    IGeometry CreateTransformedCopy(Matrix transformMatrix);
+    new IGeometry Clone();
 }

@@ -1,4 +1,5 @@
 ﻿using OpenGeometryEngine;
+using OpenGeometryEngine.Classes.Curves;
 
 namespace OpenGeometryEngineTests.CurveTests.ArcTests;
 
@@ -14,7 +15,7 @@ public class ArcTests
         var frameOrigin = new Point(0.12314121, 0.01231231, 0.0031324);
         
         var frame = new Frame(frameOrigin, frameDirX, frameDirY, frameDirZ);
-        var arc = Arc.Create(Circle.Create(frame, 1.0), new Interval(.0, 2 * Math.PI));
+        var arc = new Arc(frame, 1.0, new Interval(.0, 2 * Math.PI));
 
         var mapping = Matrix.CreateMapping(frame).Inverse();
         var mappedArc = arc.CreateTransformedCopy(mapping);
@@ -35,8 +36,7 @@ public class ArcTests
     [Test]
     public void ARC_SEGMENT_BOUNDING_BOX()
     {
-        var circle = Circle.Create(Frame.World, 1.0);
-        var arc = Arc.Create(circle, new Interval(.0, 0.75 * Math.PI));
+        var arc = new Arc(Frame.World, 1.0, new Interval(.0, 0.75 * Math.PI));
 
         var box = arc.GetBoundingBox();
 
@@ -56,7 +56,7 @@ public class ArcTests
         var frameOrigin = new Point(-0.00291090438078573, -0.00958804702822733, 0.00845388016655214);
 
         var frame = new Frame(frameOrigin, frameDirX, frameDirY, frameDirZ);
-        var arc = Arc.Create(Circle.Create(frame, 0.0155241746963), new Interval(.0, 2 * Math.PI));
+        var arc = new Arc(frame, 0.0155241746963, new Interval(.0, 2 * Math.PI));
 
         var box = arc.GetBoundingBox();
 

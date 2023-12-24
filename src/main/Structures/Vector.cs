@@ -1,5 +1,6 @@
 using OpenGeometryEngine.Extensions;
 using System;
+using System.Collections.Generic;
 
 namespace OpenGeometryEngine;
 
@@ -22,6 +23,9 @@ public readonly struct Vector : IEquatable<Vector>
     /// </summary>
     public readonly double Magnitude;
 
+
+    public UnitVec Unit => new(X / Magnitude, Y / Magnitude, Z / Magnitude);
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Vector"/> struct
     /// with the specified X, Y, and Z components.
@@ -32,7 +36,7 @@ public readonly struct Vector : IEquatable<Vector>
     public Vector(double x, double y, double z)
     {
         (X, Y, Z) = (x, y, z);
-        Magnitude = Math.Sqrt(X * X + Y * Y + Z * Z);
+        Magnitude = CaclMagnitude(x, y, z);
     }
 
     /// <summary>
@@ -66,23 +70,44 @@ public readonly struct Vector : IEquatable<Vector>
 
     public static Vector operator -(Vector a) => a * -1;
 
+    private static double Dot(double x1, double y1, double z1,
+                              double x2, double y2, double z2)
+        => x1 * x2 + y1 * y2 + z1 * z2;
+
     /// <summary>
     /// Calculates the dot product of two vectors.
     /// </summary>
     /// <param name="a">The first vector.</param>
     /// <param name="b">The second vector.</param>
     /// <returns>The dot product of the two vectors.</returns>
-    public static double Dot(Vector a, Vector b) =>
-        a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+    public static double Dot(Vector a, Vector b) => Dot(a.X, a.Y, a.Z, b.X, b.Y, b.Z);
 
-    public static Vector Cross(Vector vector1, Vector vector2)
+    public static double Dot(Vector a, UnitVec b) => Dot(a.X, a.Y, a.Z, b.X, b.Y, b.Z);
+
+    public static double Dot(UnitVec a, UnitVec b) => Dot(a.X, a.Y, a.Z, b.X, b.Y, b.Z);
+
+    public static double Dot(UnitVec a, Vector b) => Dot(a.X, a.Y, a.Z, b.X, b.Y, b.Z);
+    
+    private static Vector Cross(double x1, double y1, double z1,
+                                double x2, double y2, double z2)
     {
-        double crossProductX = vector1.Y * vector2.Z - vector1.Z * vector2.Y;
-        double crossProductY = vector1.Z * vector2.X - vector1.X * vector2.Z;
-        double crossProductZ = vector1.X * vector2.Y - vector1.Y * vector2.X;
-
+        double crossProductX = y1 * z2 - z1 * y2;
+        double crossProductY = z1 * x2 - x1 * z2;
+        double crossProductZ = x1 * y2 - y1 * x2;
         return new Vector(crossProductX, crossProductY, crossProductZ);
     }
+
+    public static Vector Cross(Vector vector1, Vector vector2)
+        => Cross(vector1.X, vector1.Y, vector1.Z, vector2.X, vector2.Y, vector2.Z);
+
+    public static Vector Cross(Vector vector1, UnitVec vector2)
+        => Cross(vector1.X, vector1.Y, vector1.Z, vector2.X, vector2.Y, vector2.Z);    
+
+    public static Vector Cross(UnitVec vector1, UnitVec vector2) 
+        => Cross(vector1.X, vector1.Y, vector1.Z, vector2.X, vector2.Y, vector2.Z);
+
+    public static Vector Cross(UnitVec vector1, Vector vector2)
+        => Cross(vector1.X, vector1.Y, vector1.Z, vector2.X, vector2.Y, vector2.Z);
 
     /// <summary>
     /// Returns a new vector with the same direction as the original vector,
@@ -91,28 +116,68 @@ public readonly struct Vector : IEquatable<Vector>
     /// <returns>A normalized vector.</returns>
     public Vector Normalize() => new Vector(X / Magnitude, Y / Magnitude, Z / Magnitude);
 
-    public bool IsParallel(Vector other)
-        => Accuracy.AngleIsZero(Angle(other));
+    //public bool IsParallel(Vector other)
+    //    => Accuracy.AngleIsZero(Angle(other));
 
-    public double Angle(Vector other)
+    private static double CaclMagnitude(double x, double y, double z)
+        => Math.Sqrt(x * x + y * y + z * z);
+
+    private static double Angle(double x1, double y1, double z1,
+                                double x2, double y2, double z2)
     {
-        var rawNum = Dot(this, other) / (Magnitude * other.Magnitude);
+        var firstMagnitude = CaclMagnitude(x1, y1, z1);
+        var secondMagnitude = CaclMagnitude(x2, y2, z2);
+        var rawNum = Dot(x1, y1, z1, x2, y2, z2) / (firstMagnitude * secondMagnitude);
         var checkNum = rawNum.Clamp(-1, 1);
         return Math.Acos(checkNum);
     }
 
-    public double SignedAngle(Vector other, Vector axis)
+    public static double Angle(Vector vector1, Vector vector2) 
+        => Angle(vector1.X, vector1.Y, vector1.Z, vector2.X, vector2.Y, vector2.Z);
+    
+    public static double Angle(Vector vector1, UnitVec vector2) 
+        => Angle(vector1.X, vector1.Y, vector1.Z, vector2.X, vector2.Y, vector2.Z);
+    
+    public static double Angle(UnitVec vector1, Vector vector2) 
+        => Angle(vector1.X, vector1.Y, vector1.Z, vector2.X, vector2.Y, vector2.Z);
+    
+    public static double Angle(UnitVec vector1, UnitVec vector2) 
+        => Angle(vector1.X, vector1.Y, vector1.Z, vector2.X, vector2.Y, vector2.Z);
+    
+    public static double SignedAngle(double x1, double y1, double z1,
+        double x2, double y2, double z2, 
+        double axisX, double axisY, double axisZ)
     {
-        var cross = Cross(this, other);
-        var sign = Math.Sign(Dot(cross, axis));
-        return sign * Angle(other);
+        var cross = Cross(x1, y1, z1, x2, y2, z2);
+        var sign = Math.Sign(Dot(cross.X, cross.Y, cross.Z, axisX, axisY, axisZ));
+        return sign * Angle(x1, y1, z1, x2, y2, z2);
     }
+
+    public static double SignedAngle(Vector vector1, Vector vector2, Vector axis)
+        => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
+            vector2.X, vector2.Y, vector2.Z, 
+            axis.X, axis.Y, axis.Z);    
+    
+    public static double SignedAngle(Vector vector1, Vector vector2, UnitVec axis)
+        => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
+            vector2.X, vector2.Y, vector2.Z, 
+            axis.X, axis.Y, axis.Z);    
+    
+    public static double SignedAngle(UnitVec vector1, UnitVec vector2, UnitVec axis)
+        => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
+            vector2.X, vector2.Y, vector2.Z, 
+            axis.X, axis.Y, axis.Z);    
+    
+    public static double SignedAngle(UnitVec vector1, UnitVec vector2, Vector axis)
+        => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
+            vector2.X, vector2.Y, vector2.Z, 
+            axis.X, axis.Y, axis.Z);    
 
     public bool Equals(Vector other)
     {
-        return Accuracy.EqualLengths(X, other.X) &&
-               Accuracy.EqualLengths(Y, other.Y) &&
-               Accuracy.EqualLengths(Z, other.Z);
+        return Accuracy.CompareWithTolerance(X, other.X, Accuracy.DefaultDoubleTolerance) == 0 &&
+               Accuracy.CompareWithTolerance(Y, other.Y, Accuracy.DefaultDoubleTolerance) == 0 &&
+               Accuracy.CompareWithTolerance(Z, other.Z, Accuracy.DefaultDoubleTolerance) == 0;
     }
 
     public override bool Equals(object obj)

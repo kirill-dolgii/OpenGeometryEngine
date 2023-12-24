@@ -59,11 +59,8 @@ public readonly struct Matrix
     public static Matrix CreateTranslation(Vector translation) 
         => CreateTranslation(translation.X, translation.Y, translation.Z);
 
-    public static Matrix CreateRotation(Vector direction, double angle)
+    public static Matrix CreateRotation(UnitVec unitDir, double angle)
     {
-        // Normalize the axis vector
-        Vector unitDir = direction.Normalize();
-
         // Precompute trigonometric values
         float cos = (float)Math.Cos(angle);
         float sin = (float)Math.Sin(angle);
@@ -110,20 +107,20 @@ public readonly struct Matrix
         };
     }
 
-    private static Matrix CreateRotation(Vector xAxis, Vector yAxis, Vector zAxis)
+    private static Matrix CreateRotation(UnitVec xAxis, UnitVec yAxis, UnitVec zAxis)
     {
         var world = Frame.World;
-        var alp1 = world.DirX.Angle(xAxis);
-        var betha1 = world.DirY.Angle(xAxis);
-        var gamma1 = world.DirZ.Angle(xAxis);
+        var alp1 = Vector.Angle(world.DirX, xAxis);
+        var betha1 = Vector.Angle(world.DirY, xAxis);
+        var gamma1 = Vector.Angle(world.DirZ, xAxis);
 
-        var alp2 = world.DirX.Angle(yAxis);
-        var betha2 = world.DirY.Angle(yAxis);
-        var gamma2 = world.DirZ.Angle(yAxis);
+        var alp2 = Vector.Angle(world.DirX, yAxis);
+        var betha2 = Vector.Angle(world.DirY, yAxis);
+        var gamma2 = Vector.Angle(world.DirZ, yAxis);
 
-        var alp3 = world.DirX.Angle(zAxis);
-        var betha3 = world.DirY.Angle(zAxis);
-        var gamma3 = world.DirZ.Angle(zAxis);
+        var alp3 = Vector.Angle(world.DirX, zAxis);
+        var betha3 = Vector.Angle(world.DirY, zAxis);
+        var gamma3 = Vector.Angle(world.DirZ, zAxis);
 
 
         return new Matrix
@@ -153,6 +150,8 @@ public readonly struct Matrix
         };
     }
 
+    private static Matrix CreateRotation(Vector xAxis, Vector yAxis, Vector zAxis) =>
+        CreateRotation(xAxis.Unit, yAxis.Unit, zAxis.Unit);
     public static Point operator *(Matrix transformationMatrix, Point point)
     {
         var pointData = new[] { point.X, point.Y, point.Z, 1 };
@@ -165,6 +164,13 @@ public readonly struct Matrix
         var vectorData = new[] { vector.X, vector.Y, vector.Z, 0 };
         Multiply(transformationMatrix, ref vectorData);
         return new Vector(vectorData[0], vectorData[1], vectorData[2]);
+    }
+
+    public static UnitVec operator *(Matrix transformationMatrix, UnitVec vector)
+    {
+        var vectorData = new[] { vector.X, vector.Y, vector.Z, 0 };
+        Multiply(transformationMatrix, ref vectorData);
+        return new UnitVec(vectorData[0], vectorData[1], vectorData[2]);
     }
 
     public static Frame operator *(Matrix transformationMatrix, Frame frame)

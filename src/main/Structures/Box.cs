@@ -98,6 +98,9 @@ namespace OpenGeometryEngine.Structures
             return new Box(new Point(minX, minY, minZ), new Point(maxX, maxY, maxZ));
         }
 
+        public static Box Create(params Point[] points)
+            => Box.Create(points);
+
         /// <summary>
         /// Creates a new instance of the <see cref="Box"/> struct from a collection of points.
         /// </summary>
