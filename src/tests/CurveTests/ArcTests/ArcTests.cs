@@ -1,5 +1,4 @@
 ﻿using OpenGeometryEngine;
-using OpenGeometryEngine.Classes.Curves;
 
 namespace OpenGeometryEngineTests.CurveTests.ArcTests;
 

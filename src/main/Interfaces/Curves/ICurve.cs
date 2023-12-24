@@ -1,4 +1,4 @@
-namespace OpenGeometryEngine.Interfaces.Curves;
+namespace OpenGeometryEngine;
 
 public interface ICurve : IGeometry, IHasCurve
 {

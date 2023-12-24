@@ -1,5 +1,3 @@
-using OpenGeometryEngine.Interfaces.Surfaces;
-
 namespace OpenGeometryEngine;
 
 public interface IHasSurface : ISpatial, IHasGeometry

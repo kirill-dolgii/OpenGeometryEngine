@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenGeometryEngine.Exceptions.Interval;
+namespace OpenGeometryEngine.Exceptions;
 
 public class ReversedIntervalException : Exception
 {

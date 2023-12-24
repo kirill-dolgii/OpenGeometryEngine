@@ -1,4 +1,3 @@
-using OpenGeometryEngine.Classes.Curves;
 using System;
 
 namespace OpenGeometryEngine;

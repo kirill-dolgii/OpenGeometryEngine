@@ -1,5 +1,3 @@
-using System;
-
 namespace OpenGeometryEngine;
 
 public readonly struct PointUV

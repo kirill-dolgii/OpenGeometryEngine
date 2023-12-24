@@ -1,5 +1,3 @@
-using OpenGeometryEngine.Interfaces.Curves;
-
 namespace OpenGeometryEngine;
 
 public interface IHasCurve : IHasGeometry, ISpatial

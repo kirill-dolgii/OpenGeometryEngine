@@ -1,4 +1,4 @@
-namespace OpenGeometryEngine.Interfaces.Surfaces;
+namespace OpenGeometryEngine;
 
 public interface ISurface : IGeometry, IHasSurface
 {

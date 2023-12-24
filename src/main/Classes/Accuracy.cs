@@ -1,4 +1,5 @@
 using System;
+using OpenGeometryEngine.Exceptions;
 
 namespace OpenGeometryEngine;
 

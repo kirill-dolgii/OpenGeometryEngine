@@ -1,4 +1,4 @@
-using OpenGeometryEngine;
+namespace OpenGeometryEngine;
 
 public interface IHasOrigin
 {

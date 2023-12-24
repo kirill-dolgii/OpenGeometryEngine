@@ -1,6 +1,6 @@
 using System;
 
-namespace OpenGeometryEngine;
+namespace OpenGeometryEngine.Exceptions;
 
 public class ProportionOutsideBoundsException : Exception
 {

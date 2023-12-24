@@ -1,4 +1,4 @@
-using OpenGeometryEngine.Structures;
+namespace OpenGeometryEngine;
 
 public interface IBounded
 {

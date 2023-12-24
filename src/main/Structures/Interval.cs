@@ -1,6 +1,5 @@
-﻿using OpenGeometryEngine.Exceptions.Interval;
-using System;
-using System.ComponentModel;
+﻿using System;
+using OpenGeometryEngine.Exceptions;
 
 namespace OpenGeometryEngine;
 

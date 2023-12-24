@@ -1,6 +1,6 @@
 using System;
-using OpenGeometryEngine;
-using OpenGeometryEngine.Interfaces.Surfaces;
+
+namespace OpenGeometryEngine;
 
 public abstract class FrameSurfaceBase : IGeometry, IHasFrame, IHasOrigin
 {

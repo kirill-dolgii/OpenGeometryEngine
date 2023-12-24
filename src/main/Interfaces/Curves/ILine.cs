@@ -1,5 +1,4 @@
-using OpenGeometryEngine;
-using OpenGeometryEngine.Interfaces.Curves;
+namespace OpenGeometryEngine;
 
 public interface ILine : ICurve, IHasDirection, IHasOrigin
 {

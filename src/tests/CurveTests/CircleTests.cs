@@ -1,5 +1,4 @@
 using OpenGeometryEngine;
-using OpenGeometryEngine.Classes.Curves;
 
 [TestFixture]
 public class CircleTests

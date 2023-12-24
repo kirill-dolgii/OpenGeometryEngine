@@ -1,6 +1,6 @@
 using System;
-using OpenGeometryEngine;
-using OpenGeometryEngine.Interfaces.Curves;
+
+namespace OpenGeometryEngine;
 
 public abstract class CurveBase : IGeometry
 {

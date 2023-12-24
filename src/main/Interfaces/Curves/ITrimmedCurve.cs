@@ -1,5 +1,4 @@
-using OpenGeometryEngine;
-using OpenGeometryEngine.Interfaces.Curves;
+namespace OpenGeometryEngine;
 
 public interface ITrimmedCurve : IBounded, IHasCurve
 {
