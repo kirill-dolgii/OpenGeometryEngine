@@ -12,6 +12,9 @@ public class LineSegment : ITrimmedCurve
     {
         Line = new(line);
         Interval = interval;
+        StartPoint = EvaluateAtProportion(.0).Point;
+        StartPoint = EvaluateAtProportion(.5).Point;
+        StartPoint = EvaluateAtProportion(1.0).Point;
     }
 
     public LineSegment(Point origin, UnitVec dir, Interval interval) : this(new Line(origin, dir), interval) {}
