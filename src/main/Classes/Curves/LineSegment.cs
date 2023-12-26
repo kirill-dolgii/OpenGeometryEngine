@@ -24,7 +24,7 @@ public class LineSegment : ITrimmedCurve
 
     public Box GetBoundingBox() => Box.Create(StartPoint, EndPoint);
 
-    public IGeometry Geometry { get; }
+    public IGeometry Geometry => Line;
     public TGeometry GetGeometry<TGeometry>() where TGeometry : class, IGeometry => Line as TGeometry;
 
     public bool IsGeometry<TGeometry>() where TGeometry : class, IGeometry => Line is TGeometry;
@@ -51,8 +51,11 @@ public class LineSegment : ITrimmedCurve
     public Point EndPoint { get; }
     public Point MidPoint { get; }
 
-    public ICurve CreateTransformedCopy(Matrix transfMatrix) 
-        => Line.CreateTransformedCopy(transfMatrix); 
+    ICurve ITrimmedCurve.CreateTransformedCopy(Matrix transfMatrix) 
+        => Line.CreateTransformedCopy(transfMatrix);
+
+    public LineSegment CreateTransformedCopy(Matrix transfMatrix) =>
+        new(transfMatrix * StartPoint, transfMatrix * EndPoint);
 
     public Interval Interval { get; }
     public double Length { get; }

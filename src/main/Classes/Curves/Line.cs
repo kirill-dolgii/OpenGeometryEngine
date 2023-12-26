@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using OpenGeometryEngine.Intersection.Unbounded;
+
 namespace OpenGeometryEngine;
 
 public sealed class Line : CurveBase, ILine
@@ -36,6 +40,20 @@ public sealed class Line : CurveBase, ILine
 
     public override double GetLength(Interval interval)
         => interval.Span;
+
+    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ICurve other)
+    {
+        if (other == null) throw new ArgumentNullException();
+        switch (other.Geometry)
+        {
+            case Line line:
+                return LineLineIntersection.LineIntersectLine(this, line);
+            case Circle circle:
+                return LineCircleIntersection.LineIntersectCircle(this, circle);
+            default:
+                throw new NotImplementedException();
+        }
+    }
 
     public UnitVec Direction => dir;
     public Point Origin => origin;

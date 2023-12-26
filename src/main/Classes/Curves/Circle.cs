@@ -1,4 +1,8 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using OpenGeometryEngine.Intersection.Unbounded;
 
 namespace OpenGeometryEngine;
 
@@ -33,13 +37,28 @@ public sealed class Circle : CurveBase, ICircle
     public override double GetLength(Interval interval)
         => Math.Abs((interval.End - interval.Start) * Radius);
 
+    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ICurve other)
+    {
+        if (other == null) throw new ArgumentNullException();
+
+        switch (other.Geometry)
+        {
+            case Line line:
+                return LineCircleIntersection.LineIntersectCircle(line, this);
+            case Circle circle:
+                throw new NotImplementedException();
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
     public ICurve Curve => this;
 
     public new ICurveEvaluation ProjectPoint(Point point)
     {
         var proj = Plane.ProjectPoint(point);
         var centerToPoint = proj.Point - Frame.Origin;
-        return new CircleEvaluation(this, Vector.SignedAngle(centerToPoint.Unit, Frame.DirX, Frame.DirZ));
+        return new CircleEvaluation(this, Vector.SignedAngle(Frame.DirX, centerToPoint.Unit, Frame.DirZ));
     }
 
     public ICurveEvaluation Evaluate(double param) => new CircleEvaluation(this, param);
@@ -58,4 +77,17 @@ public sealed class Circle : CurveBase, ICircle
 
     private static readonly Parametrization defaultCircleParametrization =
         new Parametrization(new Bounds(.0, 2 * Math.PI), Form.Periodic);
+
+    public static IEnumerable<CircleEvaluation> GetExtremePointInDir(Circle circle, UnitVec dir)
+    {
+        if (circle == null) throw new ArgumentNullException(nameof(circle));
+        var cross = Vector.Cross(dir, circle.Frame.DirZ);
+        if (cross == Vector.Zero) return Enumerable.Empty<CircleEvaluation>();
+        var crossUnit = cross.Unit;
+        var dotX = Vector.Dot(crossUnit, circle.Frame.DirX);
+        var dotY = Vector.Dot(crossUnit, circle.Frame.DirY);
+        var param = Math.Atan2(dotX, dotY);
+        return new Pair<CircleEvaluation>(new CircleEvaluation(circle, param), 
+            new CircleEvaluation(circle, param + Math.PI));
+    }
 }

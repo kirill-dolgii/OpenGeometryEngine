@@ -22,7 +22,7 @@ public sealed class Plane : FrameSurfaceBase, ISurface
     {
         var projX = Vector.Dot(point.Vector, Frame.DirX);
         var projY = Vector.Dot(point.Vector, Frame.DirY);
-        return new PlaneEvaluation(this, new PointUV(projY, projY));
+        return new PlaneEvaluation(this, new PointUV(projX, projY));
     }
 
     private static readonly UV<Parametrization> defaultPlaneParametrization

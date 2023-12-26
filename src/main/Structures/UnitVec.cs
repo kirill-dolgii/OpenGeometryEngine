@@ -8,6 +8,14 @@ public readonly struct UnitVec : IEquatable<UnitVec>
     public readonly double Y;
     public readonly double Z;
 
+    public static UnitVec UnitX = new (1.0, 0.0, 0.0);
+
+    public static UnitVec UnitY = new (0.0, 1.0, 0.0);
+
+    public static UnitVec UnitZ = new (0.0, 0.0, 1.0);
+
+    public static Triplet<UnitVec> WorldDirections = new (UnitX, UnitY, UnitZ);
+
     public UnitVec(double x, double y, double z)
     {
         var magnitude = x * x + y * y + z * z;

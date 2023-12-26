@@ -7,7 +7,7 @@ namespace OpenGeometryEngine;
 public class Arc : ITrimmedCurve
 {
     private Arc() {}
-
+        
     public Arc(Frame frame, double radius, Interval bounds)
     {
         Circle = new Circle(frame, radius);
@@ -22,25 +22,20 @@ public class Arc : ITrimmedCurve
 
     public Box GetBoundingBox()
     {
-        var circle = GetGeometry<Circle>();
-        var transform = Matrix.CreateMapping(circle.Frame);
-        var inverseTransform = transform.Inverse();
-
-        var angle = Vector.SignedAngle(circle.Frame.DirX, Frame.World.DirX,
-                                                  Vector.Cross(circle.Frame.DirX, Frame.World.DirX));
-
-        var centeredCircle = circle.CreateTransformedCopy(inverseTransform);
-        var cornerEvals = new[] { 0, System.Math.PI / 2, System.Math.PI, 3 * System.Math.PI / 2 };
-        var cornerPoints = cornerEvals.Where(param => Accuracy.WithinAngleInterval(Interval, param))
-                                      .Select(param => centeredCircle.Evaluate(param + angle).Point);
-        var boxPoints = new List<Point> { centeredCircle.Evaluate(Interval.Start + angle).Point,
-                                                  centeredCircle.Evaluate(Interval.End + angle).Point };
-        boxPoints.AddRange(cornerPoints);
-        var mappedBoxPoints = boxPoints.Select(p => transform * p).ToList();
-        return Box.Create(mappedBoxPoints);
+        var boxPoints = new List<Point>() { StartPoint, EndPoint };
+        foreach (var worldDirection in UnitVec.WorldDirections)
+        {
+            var evals = Circle.GetExtremePointInDir(Circle, worldDirection);
+            if (!evals.Any()) continue;
+            if (Interval.Contains(evals.First().Param, Accuracy.AngularTolerance)) 
+                boxPoints.Add(evals.First().Point);
+            if (Interval.Contains(evals.ElementAt(1).Param, Accuracy.AngularTolerance))
+                boxPoints.Add(evals.ElementAt(1).Point);
+        }
+        return Box.Create(boxPoints);
     }
 
-    public IGeometry Geometry { get; }
+    public IGeometry Geometry => Circle;
 
     public TGeometry GetGeometry<TGeometry>() where TGeometry : class, IGeometry => Circle as TGeometry;
 
