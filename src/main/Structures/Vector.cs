@@ -38,6 +38,12 @@ public readonly struct Vector : IEquatable<Vector>
         Magnitude = CaclMagnitude(x, y, z);
     }
 
+    public Vector(UnitVec unit)
+    {
+        (X, Y, Z) = (unit.X, unit.Y, unit.Z);
+        Magnitude = 1.0;
+    }
+
     /// <summary>
     /// Adds two vectors together component-wise.
     /// </summary>
@@ -53,10 +59,11 @@ public readonly struct Vector : IEquatable<Vector>
     /// <param name="vector">The vector to multiply.</param>
     /// <param name="scalar">The scalar value.</param>
     /// <returns>New vector that represents the result of the multiplication.</returns>
-    public static Vector operator *(Vector vector, double scalar)
-    {
-        return new Vector(vector.X * scalar, vector.Y * scalar, vector.Z * scalar);
-    }
+    public static Vector operator *(Vector vector, double scalar) 
+        => new(vector.X * scalar, vector.Y * scalar, vector.Z * scalar);
+
+    public static Vector operator /(Vector vector, double scalar) 
+        => new (vector.X / scalar, vector.Y / scalar, vector.Z / scalar);
 
     /// <summary>
     /// Multiplies a vector by a scalar value.

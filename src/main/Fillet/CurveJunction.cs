@@ -3,9 +3,11 @@ using System.Linq;
 
 namespace OpenGeometryEngine;
 
-public readonly struct CurveJunction
+public abstract class CurveJunction<TCurve1, TCurve2> 
+    where TCurve1 : ITrimmedCurve
+    where TCurve2 : ITrimmedCurve
 {
-    public CurveJunction(ITrimmedCurve first, ITrimmedCurve second) : this()
+    protected CurveJunction(TCurve1 first, TCurve2 second)
     {
         First = first ?? throw new ArgumentNullException(nameof(first));
         Second = second ?? throw new ArgumentNullException(nameof(second));
@@ -15,17 +17,15 @@ public readonly struct CurveJunction
         if (!junctions.Any()) throw new CommonPointException(nameof(first), nameof(second));
         if (junctions.Count > 1) throw new Exception("Found more than 1 common point");
         Junction = junctions.Single();
-        FirstTangent = (firstPoints.Except(junctions).Single() - Junction).Unit;
-        SecondTangent = (secondPoints.Except(junctions).Single() - Junction).Unit;
     }
 
-    public ITrimmedCurve First { get; }
+    public TCurve1 First { get; }
 
-    public ITrimmedCurve Second { get; }
+    public TCurve2 Second { get; }
 
     public Point Junction { get; }
 
-    public UnitVec FirstTangent { get; }
+    public abstract UnitVec FirstTangent { get; }
 
-    public UnitVec SecondTangent { get; }
+    public abstract UnitVec SecondTangent { get; }
 }
