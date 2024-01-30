@@ -22,7 +22,6 @@ public readonly struct Vector : IEquatable<Vector>
     /// </summary>
     public readonly double Magnitude;
 
-
     public UnitVec Unit => new(X / Magnitude, Y / Magnitude, Z / Magnitude);
 
     /// <summary>

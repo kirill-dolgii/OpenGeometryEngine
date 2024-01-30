@@ -1,4 +1,6 @@
-﻿using OpenGeometryEngine.Exceptions;
+﻿using OpenGeometryEngine.Collections;
+using OpenGeometryEngine.Exceptions;
+using System.Collections.Generic;
 
 namespace OpenGeometryEngine;
 
@@ -24,6 +26,7 @@ public class LineSegment : ITrimmedCurve
         StartPoint = EvaluateAtProportion(.0).Point;
         MidPoint = EvaluateAtProportion(.5).Point;
         EndPoint = EvaluateAtProportion(1.0).Point;
+        Length = (EndPoint - StartPoint).Magnitude; 
     }
 
     public LineSegment(Point origin, UnitVec dir, Interval interval) : this(new Line(origin, dir), interval) {}
@@ -34,7 +37,8 @@ public class LineSegment : ITrimmedCurve
     public Box GetBoundingBox() => Box.Create(StartPoint, EndPoint);
 
     public IGeometry Geometry => Line;
-    public TGeometry GetGeometry<TGeometry>() where TGeometry : class, IGeometry => Line as TGeometry;
+
+    public TGeometry? GetGeometry<TGeometry>() where TGeometry : class, IGeometry => Line as TGeometry;
 
     public bool IsGeometry<TGeometry>() where TGeometry : class, IGeometry => Line is TGeometry;
 
@@ -58,6 +62,8 @@ public class LineSegment : ITrimmedCurve
     public Point StartPoint { get; }
     public Point EndPoint { get; }
     public Point MidPoint { get; }
+
+    public IEnumerable<Point> StartEndPoints => Iterate.Over(StartPoint, EndPoint);
 
     ICurve ITrimmedCurve.CreateTransformedCopy(Matrix transfMatrix) 
         =>  Line.CreateTransformedCopy(transfMatrix);

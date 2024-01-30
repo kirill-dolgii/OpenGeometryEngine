@@ -5,6 +5,7 @@
 	<LangVersion>Latest</LangVersion>
 	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

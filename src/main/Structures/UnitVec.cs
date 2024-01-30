@@ -67,4 +67,10 @@ public readonly struct UnitVec : IEquatable<UnitVec>
             return hashCode;
         }
     }
+
+    public static UnitVec operator +(UnitVec first, UnitVec second)
+        => new (first.X + second.X, first.Y + second.Y, first.Z + second.Z);
+
+    public static UnitVec operator /(UnitVec unit, double scalar)
+        => new(unit.X / scalar, unit.Y / scalar, unit.Z / scalar);
 }
