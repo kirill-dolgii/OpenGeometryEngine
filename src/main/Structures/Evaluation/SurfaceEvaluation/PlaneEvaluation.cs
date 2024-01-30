@@ -1,3 +1,5 @@
+using OpenGeometryEngine.Extensions;
+
 namespace OpenGeometryEngine;
 
 public class PlaneEvaluation : ISurfaceEvaluation
@@ -7,7 +9,7 @@ public class PlaneEvaluation : ISurfaceEvaluation
     {
         Plane = plane;
         Param = param;
-        Point = Plane.Frame.Origin + Plane.Frame.DirX * param.U + Plane.Frame.DirY * param.V;
+        Point = Plane.Origin + (Plane.Frame.DirX * param.U + Plane.Frame.DirY * param.V);
     }
     
     public PointUV Param { get; }

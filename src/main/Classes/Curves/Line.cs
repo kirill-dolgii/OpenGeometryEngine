@@ -56,6 +56,7 @@ public sealed class Line : CurveBase, ILine
     public UnitVec Direction => dir;
     public Point Origin => origin;
     public ICurve Curve => base.ICurve;
+
     public new ICurveEvaluation ProjectPoint(Point point)
     {
         var vec = point - origin;

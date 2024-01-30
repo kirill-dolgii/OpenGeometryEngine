@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenGeometryEngine.Classes;
 using OpenGeometryEngine.Exceptions;
+using OpenGeometryEngine.Intersection.Unbounded;
 
 namespace OpenGeometryEngine;
 
@@ -32,9 +34,9 @@ public class Arc : ITrimmedCurve
         Circle = new Circle(new Frame(center, dirX, dirY, axis), radius);
         Interval = new Interval(0.0, angle);
         Length = radius * angle;
-        StartPoint = EvaluateAtProportion(Interval.Start).Point;
-        MidPoint = EvaluateAtProportion(angle / 2).Point;
-        EndPoint = EvaluateAtProportion(angle).Point;
+        StartPoint = Evaluate(Interval.Start).Point;
+        MidPoint = Evaluate(angle / 2).Point;
+        EndPoint = Evaluate(angle).Point;
     }
     
     public Arc(Arc other)
@@ -88,6 +90,25 @@ public class Arc : ITrimmedCurve
         if (Accuracy.WithinRangeWithTolerance(0.0, 1.0, param))
             throw new ProportionOutsideBoundsException(nameof(param));
         return Evaluate(Interval.Start + param * Interval.Span);
+    }
+
+    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ITrimmedCurve other)
+    {
+        Argument.IsNotNull(nameof(other), other);
+        switch (other.Geometry)
+        {
+            case Circle circle :
+            {
+                throw new NotImplementedException();
+            }
+            case Line line :
+            {
+                var inters = LineCircleIntersection.LineIntersectCircle(line, Circle);
+                return inters.Where(ci => Accuracy.WithinLengthInterval(other.Interval, ci.FirstEvaluation.Param) &&
+                                          Accuracy.WithinAngleInterval(Interval, ci.SecondEvaluation.Param)).ToList();
+            }
+            default: throw new NotImplementedException();
+        }
     }
 
     public Point StartPoint { get; }

@@ -20,8 +20,9 @@ public sealed class Plane : FrameSurfaceBase, ISurface
 
     public new ISurfaceEvaluation ProjectPoint(Point point)
     {
-        var projX = Vector.Dot(point.Vector, Frame.DirX);
-        var projY = Vector.Dot(point.Vector, Frame.DirY);
+        var pointToOriginVec = point - Origin;
+        var projX = Vector.Dot(pointToOriginVec, Frame.DirX);
+        var projY = Vector.Dot(pointToOriginVec, Frame.DirY);
         return new PlaneEvaluation(this, new PointUV(projX, projY));
     }
 

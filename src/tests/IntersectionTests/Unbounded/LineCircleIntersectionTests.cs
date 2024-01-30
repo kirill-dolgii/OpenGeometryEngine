@@ -23,7 +23,7 @@ public class LineCircleIntersectionTests
         Assert.That(inters.ElementAt(0).SecondEvaluation.Param, Is.EqualTo(Math.PI / 2));
 
         Assert.That(inters.ElementAt(1).SecondEvaluation.Point, Is.EqualTo(new Point(0, -1, 0)));
-        Assert.That(inters.ElementAt(1).SecondEvaluation.Param, Is.EqualTo(-Math.PI / 2));
+        Assert.That(inters.ElementAt(1).SecondEvaluation.Param, Is.EqualTo(3 * Math.PI / 2));
     }
 
     [Test]

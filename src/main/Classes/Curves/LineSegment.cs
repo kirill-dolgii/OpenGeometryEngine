@@ -1,6 +1,9 @@
-﻿using OpenGeometryEngine.Collections;
+﻿using System;
+using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Exceptions;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using OpenGeometryEngine.Classes;
 
 namespace OpenGeometryEngine;
 
@@ -54,9 +57,23 @@ public class LineSegment : ITrimmedCurve
 
     public ICurveEvaluation EvaluateAtProportion(double param)
     {
-        if (Accuracy.WithinRangeWithTolerance(0.0, 1.0, param))
+        if (!Accuracy.WithinRangeWithTolerance(0.0, 1.0, param))
             throw new ProportionOutsideBoundsException(nameof(param));
         return Evaluate(Interval.Start + param * Interval.Span);
+    }
+
+    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ITrimmedCurve other)
+    {
+        Argument.IsNotNull(nameof(other), other);
+        switch (other.Geometry)
+        {
+            case Line line:
+            {
+                throw new NotImplementedException();
+                break;
+            }
+            default: throw new NotImplementedException();
+        }
     }
 
     public Point StartPoint { get; }
