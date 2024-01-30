@@ -49,10 +49,4 @@ public struct Interval
         if (Accuracy.CompareWithTolerance(val, End, tolerance) == -1) return End;
         return val;
     }
-
-    public bool Contains(double param, double tolerance)
-    {
-        if (double.IsNaN(param)) throw new DoubleIsNanException(nameof(param));
-        return Accuracy.WithinRangeWithTolerance(Start, End, param, tolerance);
-    }
 }

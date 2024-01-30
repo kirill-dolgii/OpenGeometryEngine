@@ -8,13 +8,22 @@ public class LineSegment : ITrimmedCurve
     {
     }
 
+    public LineSegment(LineSegment other)
+    {
+        Line = other.Line;
+        Interval = other.Interval;
+        StartPoint = other.StartPoint;
+        MidPoint = other.MidPoint;
+        EndPoint = other.EndPoint;
+    }
+
     public LineSegment(ILine line, Interval interval)
     {
         Line = new(line);
         Interval = interval;
         StartPoint = EvaluateAtProportion(.0).Point;
-        StartPoint = EvaluateAtProportion(.5).Point;
-        StartPoint = EvaluateAtProportion(1.0).Point;
+        MidPoint = EvaluateAtProportion(.5).Point;
+        EndPoint = EvaluateAtProportion(1.0).Point;
     }
 
     public LineSegment(Point origin, UnitVec dir, Interval interval) : this(new Line(origin, dir), interval) {}
@@ -41,8 +50,7 @@ public class LineSegment : ITrimmedCurve
 
     public ICurveEvaluation EvaluateAtProportion(double param)
     {
-        if (Accuracy.CompareWithTolerance(param, 0.0, Accuracy.DefaultDoubleTolerance) == -1 ||
-            Accuracy.CompareWithTolerance(param, 1.0, Accuracy.DefaultDoubleTolerance) == 1)
+        if (Accuracy.WithinRangeWithTolerance(0.0, 1.0, param))
             throw new ProportionOutsideBoundsException(nameof(param));
         return Evaluate(Interval.Start + param * Interval.Span);
     }
@@ -52,10 +60,12 @@ public class LineSegment : ITrimmedCurve
     public Point MidPoint { get; }
 
     ICurve ITrimmedCurve.CreateTransformedCopy(Matrix transfMatrix) 
-        => Line.CreateTransformedCopy(transfMatrix);
+        =>  Line.CreateTransformedCopy(transfMatrix);
 
-    public LineSegment CreateTransformedCopy(Matrix transfMatrix) =>
-        new(transfMatrix * StartPoint, transfMatrix * EndPoint);
+    public LineSegment CreateTransformedCopy(Matrix transfMatrix) 
+        => (object)transfMatrix == (object)Matrix.Identity ? 
+            new LineSegment(this) : 
+            new(transfMatrix * StartPoint, transfMatrix * EndPoint);
 
     public Interval Interval { get; }
     public double Length { get; }

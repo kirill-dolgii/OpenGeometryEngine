@@ -29,7 +29,9 @@ public sealed class Circle : CurveBase, ICircle
     ICurve ICurve.Clone() => Clone();
 
     public ICircle CreateTransformedCopy(Matrix transformMatrix)
-        => new Circle(transformMatrix * Frame, Radius);
+        => ((object)transformMatrix == (object)Matrix.Identity)
+            ? new Circle(this)
+            : new Circle(transformMatrix * Frame, Radius);
 
     ICurve ICurve.CreateTransformedCopy(Matrix transformMatrix)
         => CreateTransformedCopy(transformMatrix);

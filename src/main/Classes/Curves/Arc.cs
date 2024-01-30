@@ -13,12 +13,21 @@ public class Arc : ITrimmedCurve
         Circle = new Circle(frame, radius);
         Interval = bounds;
         Length = radius * bounds.Span;
-        StartPoint = EvaluateAtProportion(bounds.Start).Point;
+        StartPoint = Evaluate(bounds.Start).Point;
         MidPoint = Evaluate(bounds.Start + bounds.Span / 2).Point;
         EndPoint = Evaluate(bounds.End).Point;
     }
 
-    public Arc(Arc other) : this(other.Circle.Frame, other.Circle.Radius, other.Interval) { }
+    public Arc(Arc other)
+    {
+        Circle = other.Circle;
+        Interval = other.Interval;
+        Length = other.Length;
+        StartPoint = other.StartPoint;
+        MidPoint = other.MidPoint;
+        EndPoint = other.EndPoint;
+
+    }
 
     public Box GetBoundingBox()
     {
@@ -27,9 +36,9 @@ public class Arc : ITrimmedCurve
         {
             var evals = Circle.GetExtremePointInDir(Circle, worldDirection);
             if (!evals.Any()) continue;
-            if (Interval.Contains(evals.First().Param, Accuracy.AngularTolerance)) 
+            if (Accuracy.WithinAngleInterval(Interval, evals.First().Param))
                 boxPoints.Add(evals.First().Point);
-            if (Interval.Contains(evals.ElementAt(1).Param, Accuracy.AngularTolerance))
+            if (Accuracy.WithinAngleInterval(Interval, evals.ElementAt(1).Param))
                 boxPoints.Add(evals.ElementAt(1).Point);
         }
         return Box.Create(boxPoints);
@@ -44,7 +53,7 @@ public class Arc : ITrimmedCurve
     public bool ContainsPoint(Point point)
     {
         var param = Circle.ProjectPoint(point).Param;
-        return Interval.Contains(param, Accuracy.AngularTolerance);
+        return Accuracy.WithinAngleInterval(Interval, param); 
     }
 
     public ICurveEvaluation ProjectPoint(Point point)
@@ -57,8 +66,7 @@ public class Arc : ITrimmedCurve
 
     public ICurveEvaluation EvaluateAtProportion(double param)
     {
-        if (Accuracy.CompareWithTolerance(param, 0.0, Accuracy.DefaultDoubleTolerance) == -1 || 
-            Accuracy.CompareWithTolerance(param, 1.0, Accuracy.DefaultDoubleTolerance) == 1)
+        if (Accuracy.WithinRangeWithTolerance(0.0, 1.0, param))
             throw new ProportionOutsideBoundsException(nameof(param));
         return Evaluate(Interval.Start + param * Interval.Span);
     }
@@ -77,6 +85,7 @@ public class Arc : ITrimmedCurve
         => CreateTransformedCopy(transfMatrix).Curve;
 
     public Interval Interval { get; }
+
     public double Length { get; }
 
     public Parametrization Parametrization => Curve.Parametrization;

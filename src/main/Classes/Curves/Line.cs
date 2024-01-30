@@ -23,12 +23,11 @@ public sealed class Line : CurveBase, ILine
     public Line(Point firstPoint, Point secondPoint) 
         : this(firstPoint, new UnitVec(secondPoint - firstPoint)) {}
 
-    public Line(ILine otherLine) 
-        : this(otherLine.Origin, otherLine.Direction) { }
+    public Line(ILine otherLine) : this(otherLine.Origin, otherLine.Direction) { }
 
     public ILine CreateTransformedCopy(Matrix transformMatrix)
         => (object) transformMatrix == (object) Matrix.Identity ? 
-            this : 
+            new Line(this) : 
             new Line(transformMatrix * origin, transformMatrix * dir);
 
     ICurve ICurve.CreateTransformedCopy(Matrix transformMatrix)
@@ -38,8 +37,7 @@ public sealed class Line : CurveBase, ILine
 
     ICurve ICurve.Clone() => Clone();
 
-    public override double GetLength(Interval interval)
-        => interval.Span;
+    public override double GetLength(Interval interval) => interval.Span;
 
     public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ICurve other)
     {
@@ -77,12 +75,12 @@ public sealed class Line : CurveBase, ILine
 
     public Parametrization Parametrization => defaultLineParametrization;
 
-    public static bool AreCoincident(Line line1, Line line2, double? tolerance)
+    public static bool AreCoincident(Line line1, Line line2, double? tolerance = null)
     {
         if (line1 == line2) return true;
         if (line1 == null || line2 == null) return false;
         if (!UnitVec.AreParallel(line1.Direction, line2.Direction)) return false;
         if (!tolerance.HasValue) tolerance = Accuracy.LinearTolerance;
-        return Accuracy.CompareWithTolerance((line1.origin - line2.origin).Magnitude, 0.0, tolerance.Value) == 0;
+        return Accuracy.IsZero((line1.origin - line2.origin).Magnitude, tolerance.Value);
     }
 }
