@@ -36,8 +36,6 @@ public class Arc : ITrimmedCurve
         MidPoint = EvaluateAtProportion(angle / 2).Point;
         EndPoint = EvaluateAtProportion(angle).Point;
     }
-
-    public Arc(Arc other) : this(other.Circle.Frame, other.Circle.Radius, other.Interval) { }
     
     public Arc(Arc other)
     {
