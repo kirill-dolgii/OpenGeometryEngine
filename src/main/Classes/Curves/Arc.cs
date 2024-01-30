@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenGeometryEngine.Exceptions;
 
@@ -16,6 +17,24 @@ public class Arc : ITrimmedCurve
         StartPoint = EvaluateAtProportion(bounds.Start).Point;
         MidPoint = Evaluate(bounds.Start + bounds.Span / 2).Point;
         EndPoint = Evaluate(bounds.End).Point;
+    }
+
+    public Arc(Point center, Point startPoint, Point endPoint, UnitVec axis)
+    {
+        var vecX = startPoint - center;
+        var radius = vecX.Magnitude;
+        var dirX = vecX.Unit;
+        var dirY = Vector.Cross(axis, dirX).Unit;
+        var angle = Math.Atan2(Vector.Dot(dirY, endPoint - center), Vector.Dot(dirX, endPoint - center));
+        if (angle < 0.0)
+            angle = 2 * Math.PI + angle;
+
+        Circle = new Circle(new Frame(center, dirX, dirY, axis), radius);
+        Interval = new Interval(0.0, angle);
+        Length = radius * angle;
+        StartPoint = EvaluateAtProportion(Interval.Start).Point;
+        MidPoint = EvaluateAtProportion(angle / 2).Point;
+        EndPoint = EvaluateAtProportion(angle).Point;
     }
 
     public Arc(Arc other) : this(other.Circle.Frame, other.Circle.Radius, other.Interval) { }
