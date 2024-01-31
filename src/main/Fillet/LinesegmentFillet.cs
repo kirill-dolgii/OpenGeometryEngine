@@ -2,7 +2,6 @@
 using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Extensions;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,33 +9,42 @@ namespace OpenGeometryEngine.Fillet;
 
 public static class LinesegmentFillet
 {
+    public static ICollection<ITrimmedCurve> Fillet(LineSegment first,
+                                                    LineSegment second,
+                                                    double radius)
+    {
+        Argument.IsNotNull(nameof(first), first);
+        Argument.IsNotNull(nameof(second), second);
 
-    //public static IList<ITrimmedCurve> Fillet(LineSegment firstSegment, 
-    //                                          LineSegment secondSegment,
-    //                                          double radius)
-    //{
-    //    if (firstSegment == null) throw new ArgumentNullException(nameof(firstSegment));
-    //    if (secondSegment == null) throw new ArgumentNullException(nameof(secondSegment));
+        var commonPoints = first.StartEndPoints.Intersect(second.StartEndPoints).ToList();
 
-    //    var commonPoints = firstSegment.StartEndPoints.Intersect(secondSegment.StartEndPoints).ToList();
-        
-    //    if (!commonPoints.Any()) throw new CommonPointException(nameof(firstSegment), nameof(secondSegment));
-    //    if (commonPoints.Count() > 1) throw new Exception("Lines are equal");
+        if (!commonPoints.Any()) throw new NoCommonPointException(nameof(first), nameof(second));
+        if (commonPoints.Count() > 1) throw new Exception("Lines are equal");
 
-    //    var commonPoint = commonPoints.Single();
+        var commonPoint = commonPoints.Single();
 
-    //    var firstTangent = (firstSegment.StartEndPoints.Except(commonPoints).ToList().Single() - commonPoint).Unit;
-    //    var secondTangent = (secondSegment.StartEndPoints.Except(commonPoints).ToList().Single() - commonPoint).Unit;
+        var firstPoint = first.StartEndPoints.Except(commonPoints).ToList().Single();
+        var secondPoint = second.StartEndPoints.Except(commonPoints).ToList().Single();
 
-    //    var circleCenterVec = (firstTangent + secondTangent) / 2;
-    //    var circleCenter = (circleCenterVec * radius).ToPoint();
+        var firstTangent = (firstPoint - commonPoint).Unit;
+        var secondTangent = (secondPoint - commonPoint).Unit;
 
-    //    var cross = Vector.Cross(firstTangent, secondTangent).Unit;
+        var circleCenterVec = (firstTangent + secondTangent) / 2;
 
-    //    var arc = new Arc(circleCenter, 
-    //        firstSegment.ProjectPoint(circleCenter).Point, 
-    //        secondSegment.ProjectPoint(circleCenter).Point, cross);
+        var cross = Vector.Cross(firstTangent, secondTangent).Unit;
 
-    //}
+        var angle = Vector.Angle(firstTangent, secondTangent);
+        var cos = Math.Cos(angle / 2);
+        var shift = radius / cos;
+        var circleCenter = (circleCenterVec * shift).ToPoint();
 
+        var arc = new Arc(circleCenter,
+            first.ProjectPoint(circleCenter).Point,
+            second.ProjectPoint(circleCenter).Point, cross);
+
+        var ret = Iterate.Over<ITrimmedCurve>(new LineSegment(firstPoint, first.Line.ProjectPoint(circleCenter).Point),
+                            arc,
+                            new LineSegment(second.Line.ProjectPoint(circleCenter).Point, secondPoint));
+        return ret.ToList();
+    }
 }
