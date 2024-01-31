@@ -2,6 +2,7 @@ using static OpenGeometryEngine.Intersection.Unbounded.LinePlaneIntersection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenGeometryEngine.Classes;
 
 namespace OpenGeometryEngine.Intersection.Unbounded;
 
@@ -9,16 +10,19 @@ internal static class LineCircleIntersection
 {
     public static ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> LineIntersectCircle(Line line, Circle circle)
     {
-        if (line == null) throw new ArgumentNullException("line is null");
-        if (circle == null) throw new ArgumentException("circle is null");
+        Argument.IsNotNull(nameof(line), line);
+        Argument.IsNotNull(nameof(circle), circle);
+
         var ret = new List<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>>();
+
         if (PlaneContainsLine(circle.Plane, line))
         {
             var proj = line.ProjectPoint(circle.Frame.Origin);
             var distance = (proj.Point - circle.Frame.Origin).Magnitude;
-            if (Accuracy.CompareWithTolerance(circle.Radius, distance, Accuracy.LinearTolerance) == 1)
+            if (Accuracy.LengthIsGreaterThan(circle.Radius, distance))
             {
-                var offset = (float)Math.Sqrt(circle.Radius * circle.Radius - distance * distance); // Pythagoras triangle
+                // Pythagoras triangle
+                var offset = (float)Math.Sqrt(circle.Radius * circle.Radius - distance * distance); 
                 var p1 = proj.Point + line.Direction * offset;
                 var p2 = proj.Point - line.Direction * offset;
                 ret.Add(new(line.ProjectPoint(p1), circle.ProjectPoint(p1)));

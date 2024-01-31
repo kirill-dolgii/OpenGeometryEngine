@@ -1,3 +1,4 @@
+using OpenGeometryEngine.Classes;
 using System;
 using System.Collections.Generic;
 
@@ -8,8 +9,9 @@ internal static class LineLineIntersection
     public static ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>>
         LineIntersectLine(Line first, Line second)
     {
-        if (first == null) throw new ArgumentNullException("first was null");
-        if (second == null) throw new ArgumentNullException("second was null");
+        Argument.IsNotNull(nameof(first), first);
+        Argument.IsNotNull(nameof(second), second);
+
         var ret = new List<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>>();
 
         if (Line.AreCoincident(first, second, Accuracy.LinearTolerance))
@@ -22,7 +24,7 @@ internal static class LineLineIntersection
             if (!Accuracy.LengthIsZero(cross.Magnitude))
             {
                 var p1p2 = second.Origin - first.Origin;
-                var param = Vector.Dot(Vector.Cross(p1p2, second.Direction), cross) / Math.Pow(cross.Magnitude, 2); //Vector3.Dot(Vector3.Cross(p1p2, direction2), cross) / cross.LengthSquared();
+                var param = Vector.Dot(Vector.Cross(p1p2, second.Direction), cross) / Math.Pow(cross.Magnitude, 2);
                 var eval1 = first.Evaluate(param);
                 var eval2 = second.ProjectPoint(eval1.Point);
                 ret.Add(new(eval1, eval2));
@@ -30,5 +32,4 @@ internal static class LineLineIntersection
         }
         return ret;
     }
-
 }

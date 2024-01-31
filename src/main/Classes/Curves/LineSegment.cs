@@ -2,8 +2,8 @@
 using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Exceptions;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
 using OpenGeometryEngine.Classes;
+using System.Linq;
 
 namespace OpenGeometryEngine;
 
@@ -69,8 +69,10 @@ public class LineSegment : ITrimmedCurve
         {
             case Line line:
             {
-                throw new NotImplementedException();
-                break;
+                var inters = Line.IntersectCurve(line);
+                return inters.Where(ip => Accuracy.WithinLengthInterval(Interval, ip.FirstEvaluation.Param) &&
+                                          Accuracy.WithinLengthInterval(other.Interval, ip.SecondEvaluation.Param))
+                                          .ToList();
             }
             default: throw new NotImplementedException();
         }

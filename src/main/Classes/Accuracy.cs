@@ -81,6 +81,9 @@ public static class Accuracy
 
     public static bool LengthIsZero(double length) => IsZero(Math.Abs(length), LinearTolerance);
 
+    public static bool LengthIsGreaterThan(double length, double greaterThan) 
+        => GreaterThan(length, greaterThan, LinearTolerance);
+
     #endregion
 
     #region Angles
