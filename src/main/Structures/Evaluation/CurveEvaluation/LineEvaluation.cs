@@ -2,7 +2,7 @@ using System;
 
 namespace OpenGeometryEngine;
 
-public sealed class LineEvaluation : ICurveEvaluation
+public readonly struct LineEvaluation : ICurveEvaluation
 {
     public LineEvaluation(Line line, double param)
     {

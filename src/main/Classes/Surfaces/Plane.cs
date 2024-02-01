@@ -14,6 +14,8 @@ public sealed class Plane : FrameSurfaceBase, ISurface
     {
     }
 
+    public static Plane PlaneXY = new(Frame.World);
+
     public ISurface Surface { get; }
 
     public ISurfaceEvaluation Evaluate(PointUV param) => new PlaneEvaluation(this, param);

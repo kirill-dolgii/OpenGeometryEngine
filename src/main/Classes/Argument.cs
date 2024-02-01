@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-using System.Text;
 
-namespace OpenGeometryEngine.Classes;
+namespace OpenGeometryEngine;
 
 public static class Argument
 {

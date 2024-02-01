@@ -1,5 +1,4 @@
-﻿using OpenGeometryEngine.Classes;
-using OpenGeometryEngine.Collections;
+﻿using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Extensions;
 using System;
 using System.Collections.Generic;

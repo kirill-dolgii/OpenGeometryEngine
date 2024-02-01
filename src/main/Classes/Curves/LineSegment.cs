@@ -2,7 +2,6 @@
 using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Exceptions;
 using System.Collections.Generic;
-using OpenGeometryEngine.Classes;
 using System.Linq;
 
 namespace OpenGeometryEngine;

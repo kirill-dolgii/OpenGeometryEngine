@@ -49,4 +49,14 @@ public struct Interval
         if (Accuracy.CompareWithTolerance(val, End, tolerance) == -1) return End;
         return val;
     }
+
+    public bool OnBounds(double param, double tolerance = Accuracy.DefaultDoubleTolerance) 
+        => Accuracy.AreEqual(param, Start, tolerance) || Accuracy.AreEqual(param, End, tolerance);
+
+    public double Proportion(double param, double tolerance = Accuracy.DefaultDoubleTolerance)
+    {
+        if (!Accuracy.WithinRangeWithTolerance(Start, End, param, tolerance)) 
+            throw new ArgumentException("param is outside of bounds");
+        return (param - Start) / Span;
+    }
 }

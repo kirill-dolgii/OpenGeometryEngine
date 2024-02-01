@@ -1,4 +1,3 @@
-using OpenGeometryEngine.Classes;
 using System;
 using System.Collections.Generic;
 

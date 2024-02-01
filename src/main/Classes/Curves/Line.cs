@@ -76,12 +76,12 @@ public sealed class Line : CurveBase, ILine
 
     public Parametrization Parametrization => defaultLineParametrization;
 
-    public static bool AreCoincident(Line line1, Line line2, double? tolerance = null)
+    public static bool AreCoincident(Line line1, Line line2, 
+                                     double tolerance = Accuracy.DefaultLinearTolerance)
     {
         if (line1 == line2) return true;
         if (line1 == null || line2 == null) return false;
         if (!UnitVec.AreParallel(line1.Direction, line2.Direction)) return false;
-        if (!tolerance.HasValue) tolerance = Accuracy.LinearTolerance;
-        return Accuracy.IsZero((line1.origin - line2.origin).Magnitude, tolerance.Value);
+        return Accuracy.IsZero((line1.origin - line2.origin).Magnitude, tolerance);
     }
 }
