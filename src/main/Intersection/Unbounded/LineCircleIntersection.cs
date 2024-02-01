@@ -22,7 +22,7 @@ internal static class LineCircleIntersection
             if (Accuracy.LengthIsGreaterThan(circle.Radius, distance))
             {
                 // Pythagoras triangle
-                var offset = (float)Math.Sqrt(circle.Radius * circle.Radius - distance * distance); 
+                var offset = Math.Sqrt(circle.Radius * circle.Radius - distance * distance); 
                 var p1 = proj.Point + line.Direction * offset;
                 var p2 = proj.Point - line.Direction * offset;
                 ret.Add(new(line.ProjectPoint(p1), circle.ProjectPoint(p1)));
