@@ -95,4 +95,25 @@ public sealed class Circle : CurveBase, ICircle
         return new Pair<CircleEvaluation>(new CircleEvaluation(circle, param), 
             new CircleEvaluation(circle, param + Math.PI));
     }
+
+    public ICollection<CircleEvaluation> GetPolyline(PolylineOptions options, Interval interval)
+    {
+        int steps = (int)(GetStepNum(this, options) * Math.PI / interval.Span);
+        if (Accuracy.EqualAngles(interval.Span, 2 * Math.PI)) steps++;
+        var evals = new CircleEvaluation[steps];
+        var theta = interval.Span / steps;
+        for (int i = 0; i < steps; i++)
+        {
+            evals[i] = (CircleEvaluation)Evaluate(interval.Start + theta * i / steps);
+        }
+        return evals;
+    }
+
+    private static int GetStepNum(Circle circle, PolylineOptions options)
+    {
+        int angularNum = (int)Math.Ceiling(2 * Math.PI / options.AngularDeviation);
+        //https://math.stackexchange.com/questions/4132060/compute-number-of-regular-polgy-sides-to-approximate-circle-to-defined-precision
+        int chordTolNum = (int)Math.Ceiling(Math.PI / Math.Sqrt(2 * options.ChordTolerance / circle.Radius));
+        return Math.Max(angularNum, chordTolNum);
+    }
 }

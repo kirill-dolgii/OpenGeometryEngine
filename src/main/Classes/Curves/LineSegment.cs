@@ -88,7 +88,7 @@ public class LineSegment : IBoundedCurve
 
     public ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options)
     {
-        throw new NotImplementedException();
+        return Line.GetPolyline(options, Interval).Cast<ICurveEvaluation>().ToArray();
     }
 
     public LineSegment CreateTransformedCopy(Matrix transfMatrix) 

@@ -84,4 +84,16 @@ public sealed class Line : CurveBase, ILine
         if (!UnitVec.AreParallel(line1.Direction, line2.Direction)) return false;
         return Accuracy.IsZero((line1.origin - line2.origin).Magnitude, tolerance);
     }
+
+    public ICollection<LineEvaluation> GetPolyline(PolylineOptions options, Interval interval)
+    {
+        int steps = (int)(Math.Ceiling(interval.Span / options.MaxChordLength));
+        var evals = new LineEvaluation[steps];
+        var theta = interval.Span / steps;
+        for (int i = 0; i < steps + 1; i++)
+        {
+            evals[i] = (LineEvaluation)Evaluate(interval.Start + theta * i / steps);
+        }
+        return evals;
+    }
 }

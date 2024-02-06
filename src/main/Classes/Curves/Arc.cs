@@ -122,7 +122,7 @@ public class Arc : IBoundedCurve
 
     public ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options)
     {
-        throw new NotImplementedException();
+        return Circle.GetPolyline(options, Interval).Cast<ICurveEvaluation>().ToArray();
     }
 
     ICurve IBoundedCurve.CreateTransformedCopy(Matrix transfMatrix) 
