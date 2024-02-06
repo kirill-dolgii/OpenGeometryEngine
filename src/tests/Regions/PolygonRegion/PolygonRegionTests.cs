@@ -3,7 +3,7 @@
 namespace OpenGeometryEngineTests;
 
 [TestFixture]
-public class PolyLineRegionTests : PolyLineRegionTestBase
+public class PolygonRegionTests : PolygonRegionTestBase
 {
     [Test]
     public void SELF_INTERSECTING_REGION_TEST()
@@ -16,7 +16,7 @@ public class PolyLineRegionTests : PolyLineRegionTestBase
             new (1.0, 0.0, 0.0),
         };
 
-        Assert.That(() => new PolyLineRegion(points, Plane.PlaneXY), Throws.Exception);
+        Assert.That(() => new PolygonRegion(points, Plane.PlaneXY), Throws.Exception);
     }
 
     [Test]
@@ -30,7 +30,7 @@ public class PolyLineRegionTests : PolyLineRegionTestBase
             new (0.0, 1.0, 0.0),
         };
 
-        var polygon = new OpenGeometryEngine.PolyLineRegion(points, Plane.PlaneXY);
+        var polygon = new OpenGeometryEngine.PolygonRegion(points, Plane.PlaneXY);
         Assert.That(polygon.Area, Is.EqualTo(1.0));
     }
 
@@ -78,7 +78,7 @@ public class PolyLineRegionTests : PolyLineRegionTestBase
         var innerPoint = new Point(0.5, 0.5, 0.0);
         var outerPoint = new Point(1.5, 0.5, 0.0);
 
-        var polygon = new OpenGeometryEngine.PolyLineRegion(points, Plane.PlaneXY);
+        var polygon = new OpenGeometryEngine.PolygonRegion(points, Plane.PlaneXY);
 
         Assert.That(polygon.ContainsPoint(innerPoint), Is.True);
         Assert.That(polygon.ContainsPoint(outerPoint), Is.False);

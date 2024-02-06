@@ -10,6 +10,8 @@ public interface IFlatRegion : IEnumerable<ITrimmedCurve>
 
     Plane Plane { get; }
 
+    public ICollection<IFlatRegion> InnerRegions { get; }
+
     int WindingNumber(Point point);
 
     IFlatRegion Offset(double offset);
