@@ -8,16 +8,16 @@ namespace OpenGeometryEngine.Classes.Regions;
 
 public class PolyLineRegion : IFlatRegion
 {
-    private ITrimmedCurve[] _curves { get; }
+    private IBoundedCurve[] _curves { get; }
 
     private Point[] _points { get; }
 
     private PolygonRegion _polygon { get; }
 
-    public PolyLineRegion(ICollection<ITrimmedCurve> curves)
+    public PolyLineRegion(ICollection<IBoundedCurve> curves)
     {
         Argument.IsNotNull(nameof(curves), curves);
-        var gr = new Graph<Point, ITrimmedCurve>(false);
+        var gr = new Graph<Point, IBoundedCurve>(false);
         foreach (var curve in curves)
         {
             gr.AddEdge(curve.StartPoint, curve.EndPoint, curve);
@@ -48,7 +48,7 @@ public class PolyLineRegion : IFlatRegion
 
     }
 
-    public IEnumerator<ITrimmedCurve> GetEnumerator()
+    public IEnumerator<IBoundedCurve> GetEnumerator()
     {
         foreach (var curve in _curves) yield return curve;
     }

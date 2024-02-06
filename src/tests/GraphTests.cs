@@ -17,7 +17,7 @@ public class GraphTests
             new LineSegment(new Point(0.0, 1.0, 0.0), Point.Origin),
         };
 
-        var graph = new Graph<Point, ITrimmedCurve>(false);
+        var graph = new Graph<Point, IBoundedCurve>(false);
 
         foreach (var curve in curves)
         {
@@ -39,7 +39,7 @@ public class GraphTests
             new LineSegment(new Point(0.0, 1.0, 0.0), Point.Origin),
         };
 
-        var graph = new Graph<Point, ITrimmedCurve>(false);
+        var graph = new Graph<Point, IBoundedCurve>(false);
 
         foreach (var curve in curves)
         {

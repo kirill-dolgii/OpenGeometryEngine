@@ -8,7 +8,7 @@ namespace OpenGeometryEngine.Fillet;
 
 public static class LinesegmentFillet
 {
-    public static ICollection<ITrimmedCurve> Fillet(LineSegment first,
+    public static ICollection<IBoundedCurve> Fillet(LineSegment first,
                                                     LineSegment second,
                                                     double radius)
     {
@@ -41,7 +41,7 @@ public static class LinesegmentFillet
             first.ProjectPoint(circleCenter).Point,
             second.ProjectPoint(circleCenter).Point, cross);
 
-        var ret = Iterate.Over<ITrimmedCurve>(new LineSegment(firstPoint, first.Line.ProjectPoint(circleCenter).Point),
+        var ret = Iterate.Over<IBoundedCurve>(new LineSegment(firstPoint, first.Line.ProjectPoint(circleCenter).Point),
                             arc,
                             new LineSegment(second.Line.ProjectPoint(circleCenter).Point, secondPoint));
         return ret.ToList();

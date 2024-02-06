@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace OpenGeometryEngine;
 
-public interface ITrimmedCurve : IBounded, IHasCurve
+public interface IBoundedCurve : IBounded, IHasCurve
 {
     new ICurveEvaluation ProjectPoint(Point point);
 
@@ -14,7 +14,7 @@ public interface ITrimmedCurve : IBounded, IHasCurve
 
     ICurveEvaluation EvaluateAtProportion(double param);
 
-    ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ITrimmedCurve other);
+    ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(IBoundedCurve other);
 
     Point StartPoint { get; }
 

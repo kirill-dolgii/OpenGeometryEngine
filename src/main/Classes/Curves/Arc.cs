@@ -6,7 +6,7 @@ using OpenGeometryEngine.Intersection.Unbounded;
 
 namespace OpenGeometryEngine;
 
-public class Arc : ITrimmedCurve
+public class Arc : IBoundedCurve
 {
     private Arc() {}
         
@@ -91,7 +91,7 @@ public class Arc : ITrimmedCurve
         return Evaluate(Interval.Start + param * Interval.Span);
     }
 
-    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ITrimmedCurve other)
+    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(IBoundedCurve other)
     {
         Argument.IsNotNull(nameof(other), other);
         switch (other.Geometry)
@@ -125,7 +125,7 @@ public class Arc : ITrimmedCurve
         throw new NotImplementedException();
     }
 
-    ICurve ITrimmedCurve.CreateTransformedCopy(Matrix transfMatrix) 
+    ICurve IBoundedCurve.CreateTransformedCopy(Matrix transfMatrix) 
         => CreateTransformedCopy(transfMatrix).Curve;
 
     public Interval Interval { get; }

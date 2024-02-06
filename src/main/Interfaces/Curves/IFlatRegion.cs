@@ -2,7 +2,7 @@
 
 namespace OpenGeometryEngine;
 
-public interface IFlatRegion : IEnumerable<ITrimmedCurve>
+public interface IFlatRegion : IEnumerable<IBoundedCurve>
 {
     double Length { get; }
 

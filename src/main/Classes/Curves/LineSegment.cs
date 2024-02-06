@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace OpenGeometryEngine;
 
-public class LineSegment : ITrimmedCurve
+public class LineSegment : IBoundedCurve
 {
     private LineSegment()
     {
@@ -61,7 +61,7 @@ public class LineSegment : ITrimmedCurve
         return Evaluate(Interval.Start + param * Interval.Span);
     }
 
-    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ITrimmedCurve other)
+    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(IBoundedCurve other)
     {
         Argument.IsNotNull(nameof(other), other);
         switch (other.Geometry)
@@ -83,7 +83,7 @@ public class LineSegment : ITrimmedCurve
 
     public IEnumerable<Point> StartEndPoints => Iterate.Over(StartPoint, EndPoint);
 
-    ICurve ITrimmedCurve.CreateTransformedCopy(Matrix transfMatrix) 
+    ICurve IBoundedCurve.CreateTransformedCopy(Matrix transfMatrix) 
         =>  Line.CreateTransformedCopy(transfMatrix);
 
     public ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options)

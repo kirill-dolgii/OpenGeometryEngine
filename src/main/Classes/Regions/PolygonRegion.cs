@@ -107,7 +107,7 @@ public class PolygonRegion : IFlatRegion
         return false;
     }
 
-    public IEnumerator<ITrimmedCurve> GetEnumerator()
+    public IEnumerator<IBoundedCurve> GetEnumerator()
     {
         foreach (var lineSegment in _lines)
         {
