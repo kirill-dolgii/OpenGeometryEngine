@@ -86,6 +86,11 @@ public class LineSegment : ITrimmedCurve
     ICurve ITrimmedCurve.CreateTransformedCopy(Matrix transfMatrix) 
         =>  Line.CreateTransformedCopy(transfMatrix);
 
+    public ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options)
+    {
+        throw new NotImplementedException();
+    }
+
     public LineSegment CreateTransformedCopy(Matrix transfMatrix) 
         => (object)transfMatrix == (object)Matrix.Identity ? 
             new LineSegment(this) : 

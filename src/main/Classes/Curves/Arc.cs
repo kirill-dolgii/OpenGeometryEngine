@@ -120,6 +120,11 @@ public class Arc : ITrimmedCurve
         return new Arc(transfMatrix * Circle.Frame, Circle.Radius, Interval);
     }
 
+    public ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options)
+    {
+        throw new NotImplementedException();
+    }
+
     ICurve ITrimmedCurve.CreateTransformedCopy(Matrix transfMatrix) 
         => CreateTransformedCopy(transfMatrix).Curve;
 

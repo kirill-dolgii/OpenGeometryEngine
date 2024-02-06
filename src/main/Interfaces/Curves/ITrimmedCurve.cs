@@ -23,4 +23,6 @@ public interface ITrimmedCurve : IBounded, IHasCurve
     Point MidPoint { get; }
 
     ICurve CreateTransformedCopy(Matrix transfMatrix);
+
+    ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options);
 }
