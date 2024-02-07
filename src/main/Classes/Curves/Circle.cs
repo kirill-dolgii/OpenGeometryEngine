@@ -104,7 +104,7 @@ public sealed class Circle : CurveBase, ICircle
         var theta = interval.Span / steps;
         for (int i = 0; i < steps; i++)
         {
-            evals[i] = (CircleEvaluation)Evaluate(interval.Start + theta * i / steps);
+            evals[i] = (CircleEvaluation)Evaluate(interval.Start + theta * i);
         }
         return evals;
     }

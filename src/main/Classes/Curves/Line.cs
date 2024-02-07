@@ -90,9 +90,9 @@ public sealed class Line : CurveBase, ILine
         int steps = (int)(Math.Ceiling(interval.Span / options.MaxChordLength));
         var evals = new LineEvaluation[steps];
         var theta = interval.Span / steps;
-        for (int i = 0; i < steps + 1; i++)
+        for (int i = 0; i < steps; i++)
         {
-            evals[i] = (LineEvaluation)Evaluate(interval.Start + theta * i / steps);
+            evals[i] = (LineEvaluation)Evaluate(interval.Start + theta * i);
         }
         return evals;
     }
