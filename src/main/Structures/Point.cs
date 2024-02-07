@@ -75,17 +75,6 @@ public readonly struct Point : IEquatable<Point>
         return obj is Point other && Equals(other);
     }
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hashCode = X.GetHashCode();
-            hashCode = (hashCode * 397) ^ Y.GetHashCode();
-            hashCode = (hashCode * 397) ^ Z.GetHashCode();
-            return hashCode;
-        }
-    }
-
     public static bool operator ==(Point a, Point b) => a.Equals(b);
 
     public static bool operator !=(Point a, Point b) => !(a == b);

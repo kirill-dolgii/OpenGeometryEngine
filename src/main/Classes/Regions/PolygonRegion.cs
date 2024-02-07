@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using OpenGeometryEngine.Exceptions;
 
 namespace OpenGeometryEngine;
 
@@ -13,20 +14,20 @@ public class PolygonRegion : IFlatRegion
     public PolygonRegion(Point[] points, Plane plane)
     {
         Argument.IsNotNull(nameof(points), points);
-        if (points.Length < 2) throw new ArgumentException(); //TODO:Typed exception
+        if (points.Length < 2) throw new ArgumentException("Can't create a region from less than 3 points");
         _lines = new LineSegment[points.Length];
 
         double length = 0;
 
         for (int i = 0; i < points.Length; i++)
         {
-            if (!plane.ContainsPoint(points[i])) throw new ArgumentException(); //TODO:Typed exception
+            if (!plane.ContainsPoint(points[i])) throw new PointOffRegionPlaneException();
             int j = (i + 1) % points.Length;
             _lines[i] = new LineSegment(points[i], points[j]);
             length += _lines[i].Length;
         }
         
-        if (SelfIntersects(_lines)) throw new Exception("Polygon contains self-intersections");
+        if (SelfIntersects(_lines)) throw new SelfIntersectingRegionException();
 
         Plane = plane;
         Length = length;
@@ -107,6 +108,18 @@ public class PolygonRegion : IFlatRegion
         return false;
     }
 
+    private bool Contains(PolygonRegion other)
+    {
+        foreach (var l1 in _lines)
+        {
+            foreach (var l2 in other._lines)
+            {
+                if (l1.IntersectCurve(l2).Any()) return false;
+            }
+        }
+        return ContainsPoint(other._points[0]);
+    }
+
     public IEnumerator<IBoundedCurve> GetEnumerator()
     {
         foreach (var lineSegment in _lines)
@@ -130,7 +143,7 @@ public class PolygonRegion : IFlatRegion
 
     public bool IsConvex { get; }
 
-    public IEnumerable<Point> Points => _points;
+    public Point[] Points => _points;
 
     public int WindingNumber(Point point)
     {
@@ -144,7 +157,15 @@ public class PolygonRegion : IFlatRegion
 
     public bool Contains(IFlatRegion other)
     {
-        throw new System.NotImplementedException();
+        Argument.IsNotNull(nameof(other), other);
+        switch (other)
+        {
+            case PolygonRegion polygon:
+            {
+                return Contains(polygon);
+            }
+            default: throw new NotImplementedException();
+        }
     }
 
     public bool Intersects(IFlatRegion other)

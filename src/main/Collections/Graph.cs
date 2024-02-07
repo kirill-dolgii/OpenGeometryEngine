@@ -1,7 +1,7 @@
-﻿using OpenGeometryEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenGeometryEngine;
 
 namespace DataStructures.Graph;
 
@@ -25,6 +25,16 @@ public class Graph<TNode, TEdge>
                                        EqualityComparer<TNode>.Default,
                                        EqualityComparer<TEdge>.Default,
                                        directed)
+    { }
+
+    public Graph(bool directed, 
+                 IEqualityComparer<TNode> nodeEqualityComparer,
+                 IEqualityComparer<TEdge> edgeEqualityComparer) : 
+        this(new Dictionary<TNode, ICollection<TNode>>(),
+             new Dictionary<(TNode, TNode), TEdge>(),
+             nodeEqualityComparer,
+             edgeEqualityComparer,
+             directed)
     { }
 
     private Graph(IDictionary<TNode, ICollection<TNode>> adjacency,
@@ -111,6 +121,7 @@ public class Graph<TNode, TEdge>
     {
         if (!ContainsEdge(x, y, edge)) return false;
         _edges.Remove((x, y));
+        _adjacent[x].Remove(y);
         _edgesCount--;
         if (!directed) RemoveEdgeImpl(y, x, edge, true);
         return true;
@@ -141,29 +152,30 @@ public class Graph<TNode, TEdge>
     {
         Argument.IsNotNull(nameof(start), start);
         if (!ContainsNode(start)) throw new ArgumentException(nameof(start));
+        var path = new LinkedList<ValueTuple<TNode, TNode, TEdge>>();
 
         var queue = new Queue<TNode>();
         var visited = Nodes.ToDictionary(n => n, _ => false, NodeEqualityComparer);
-        var path = new LinkedList<ValueTuple<TNode, TNode, TEdge>>();
+        var parent = Nodes.ToDictionary(n => n, n => n);
+        visited[start] = true;
         
         queue.Enqueue(start);
-
-        var predecessor = start;
         while (queue.Any())
         {
             var node = queue.Dequeue();
-            var edge = Edge(predecessor, node);
-            path.AddLast((predecessor, node, edge));
-
             visited[node] = true;
-
             var neighbours = _adjacent[node];
-
             foreach (var nbr in neighbours)
             {
-                if (!visited[nbr]) queue.Enqueue(nbr);
+                if (!visited[nbr])
+                {
+                    queue.Enqueue(nbr);
+                    parent[nbr] = node;
+                }
             }
-            predecessor = node;
+            if (NodeEqualityComparer.Equals(node, start)) continue;
+            var edge = Edge(parent[node], node);
+            path.AddLast((parent[node], node, edge));
         }
         return path;
     }
@@ -181,9 +193,9 @@ public class Graph<TNode, TEdge>
             var start = nodes.First();
             var bfs = BreadthTraversal(start);
             var bfsNodes = bfs.Select(tpl => tpl.Item2).ToArray();
-            foreach (var node in bfsNodes)
+            foreach (var tpl in bfs)
             {
-                nodes.Remove(node);
+                nodes.Remove(tpl.Item2);
             }
             nodes.Remove(start);
             var newGraph = new Graph<TNode, TEdge>(bfsNodes, n => _adjacent[n], n => _edges[n], Directed);

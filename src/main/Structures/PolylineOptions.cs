@@ -20,7 +20,7 @@ public readonly struct PolylineOptions
 
     public const double DefaultAngularDeviation = 0.15;
 
-    public const double DefaultMaxChordLength = 0;
+    public const double DefaultMaxChordLength = 0.0002;
 
     public const double DefaultChordTolerance = 1E-5;
 }
