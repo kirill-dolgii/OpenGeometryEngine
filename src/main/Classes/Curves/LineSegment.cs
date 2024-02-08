@@ -3,6 +3,9 @@ using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
+using System.Runtime;
+using OpenGeometryEngine.Extensions;
 
 namespace OpenGeometryEngine;
 
@@ -64,14 +67,20 @@ public class LineSegment : IBoundedCurve
     public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(IBoundedCurve other)
     {
         Argument.IsNotNull(nameof(other), other);
+        return IntersectCurve(other.Curve)
+            .Where(ip => Accuracy.WithinLengthInterval(Interval, ip.FirstEvaluation.Param) &&
+                         Accuracy.WithinLengthInterval(other.Interval, ip.SecondEvaluation.Param)).ToArray();
+    }
+
+    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ICurve other)
+    {
+        Argument.IsNotNull(nameof(other), other);
         switch (other.Geometry)
         {
             case Line line:
             {
                 var inters = Line.IntersectCurve(line);
-                return inters.Where(ip => Accuracy.WithinLengthInterval(Interval, ip.FirstEvaluation.Param) &&
-                                          Accuracy.WithinLengthInterval(other.Interval, ip.SecondEvaluation.Param))
-                                          .ToList();
+                return inters.ToArray();
             }
             default: throw new NotImplementedException();
         }
@@ -85,6 +94,41 @@ public class LineSegment : IBoundedCurve
 
     ICurve IBoundedCurve.CreateTransformedCopy(Matrix transfMatrix) 
         =>  Line.CreateTransformedCopy(transfMatrix);
+
+    /// <summary>
+    /// Splits the arc by a Curve. Intersection points that are on the bounds
+    /// of the arc are not considered as split points.
+    /// </summary>
+    /// <param name="curve"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public ICollection<IBoundedCurve> Split(ICurve curve)
+    {
+        Argument.IsNotNull(nameof(curve), curve);
+        var arcParams = new List<Tuple<double, double>>();
+        switch (curve)
+        {
+            case Line line:
+            {
+                var intersections = IntersectCurve(line);
+                if (!intersections.Any()) return Array.Empty<IBoundedCurve>();
+                arcParams = Iterate.Over(Interval.Start, intersections.Single().FirstEvaluation.Param, Interval.End)
+                    .OrderBy(param => param)
+                    .Pairs(closed:false)
+                    .ToList();
+                break;
+            }
+            default: throw new NotImplementedException();
+        }
+        // if are equal => intersection is on Interval's bound
+        var newArcParams = arcParams
+            .Where(tpl => !Accuracy.AreEqual(tpl.Item1, tpl.Item2) &&
+                          !(Accuracy.AreEqual(tpl.Item1, Interval.Start) &&
+                            Accuracy.AreEqual(tpl.Item2, Interval.End))).ToArray();
+        return newArcParams
+            .Select(tpl => new LineSegment(Line, new Interval(tpl.Item1, tpl.Item2)))
+            .ToArray();
+    }
 
     public ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options)
     {

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Exceptions;
+using OpenGeometryEngine.Extensions;
 using OpenGeometryEngine.Intersection.Unbounded;
 
 namespace OpenGeometryEngine;
@@ -94,20 +97,92 @@ public class Arc : IBoundedCurve
     public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(IBoundedCurve other)
     {
         Argument.IsNotNull(nameof(other), other);
+        return IntersectCurve(other.Curve)
+                   .Where(ci =>
+                   {
+                       return other.Geometry switch
+                       {
+                           Line line => Accuracy.WithinLengthInterval(other.Interval, ci.SecondEvaluation.Param),
+                           Circle circle => Accuracy.WithinAngleInterval(other.Interval, ci.SecondEvaluation.Param),
+                           _ => throw new NotImplementedException()
+                       };
+                   })
+                   .ToArray();
+    }
+
+    public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ICurve other)
+    {
+        Argument.IsNotNull(nameof(other), other);
         switch (other.Geometry)
         {
-            case Circle circle :
+            case Line line:
+                var intersections = LineCircleIntersection.LineIntersectCircle(line, Circle)
+                    .Select(ip => new IntersectionPoint<ICurveEvaluation, ICurveEvaluation>
+                        (ip.SecondEvaluation, ip.FirstEvaluation)).ToArray();
+                var suitableIntersections = intersections
+                    .Where(ip => Accuracy.WithinAngleInterval(Interval, ip.FirstEvaluation.Param)).ToArray();
+                return suitableIntersections;
+            default: throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Splits the arc by a Curve. Intersection points that are on the bounds
+    /// of the arc are not considered as split points.
+    /// </summary>
+    /// <param name="curve"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public ICollection<IBoundedCurve> Split(ICurve curve)
+    {
+        Argument.IsNotNull(nameof(curve), curve);
+        var arcParams = new List<Tuple<double, double>>();
+        switch (curve)
+        {
+            case Line:
             {
-                throw new NotImplementedException();
-            }
-            case Line line :
-            {
-                var inters = LineCircleIntersection.LineIntersectCircle(line, Circle);
-                return inters.Where(ci => Accuracy.WithinLengthInterval(other.Interval, ci.FirstEvaluation.Param) &&
-                                          Accuracy.WithinAngleInterval(Interval, ci.SecondEvaluation.Param)).ToList();
+                var intersections = IntersectCurve(curve);
+                switch (intersections.Count)
+                {
+                    case 0: return Array.Empty<IBoundedCurve>();
+                    case 1:
+                    {
+                        arcParams.Add(new (Interval.Start, intersections.Single().FirstEvaluation.Param));
+                        arcParams.Add(new (intersections.Single().FirstEvaluation.Param, Interval.End));
+                        break;
+                    }
+                    case 2:
+                    {
+                        if (!Accuracy.AreEqual(2 * Math.PI, Interval.Span))
+                        {
+                            arcParams = Iterate.Over(Interval.Start, Interval.End,
+                                                     intersections.ElementAt(0).FirstEvaluation.Param,
+                                                     intersections.ElementAt(1).FirstEvaluation.Param)
+                                               .OrderBy(param => param).Pairs(closed:false).ToList();
+                        }
+                        else
+                        {
+                            var span = intersections.ElementAt(1).FirstEvaluation.Param -
+                                       intersections.ElementAt(0).FirstEvaluation.Param;
+                            arcParams = Enumerable.Range(0, 3).Select(i => i * span)
+                                .Pairs(closed: false).ToList();
+                        }
+                        break;
+                    }
+                }
+                break;
             }
             default: throw new NotImplementedException();
         }
+
+        // if are equal => intersection is on Interval's bound
+        var newArcParams = arcParams
+            .Where(tpl => !Accuracy.AreEqual(tpl.Item1, tpl.Item2) &&
+                            !(Accuracy.AreEqual(tpl.Item1, Interval.Start) && 
+                              Accuracy.AreEqual(tpl.Item2, Interval.End))).ToArray();
+        return newArcParams
+            .Select(tpl => new Arc(Circle.Frame, Circle.Radius, new Interval(tpl.Item1, tpl.Item2)))
+            .ToArray();
     }
 
     public Point StartPoint { get; }

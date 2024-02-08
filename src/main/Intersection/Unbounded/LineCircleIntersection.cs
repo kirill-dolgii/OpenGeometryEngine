@@ -24,8 +24,15 @@ internal static class LineCircleIntersection
                 var offset = Math.Sqrt(circle.Radius * circle.Radius - distance * distance); 
                 var p1 = proj.Point + line.Direction * offset;
                 var p2 = proj.Point - line.Direction * offset;
-                ret.Add(new(line.ProjectPoint(p1), circle.ProjectPoint(p1)));
-                ret.Add(new(line.ProjectPoint(p2), circle.ProjectPoint(p2)));
+                
+                var param1 = Vector.SignedAngle(circle.Frame.DirX, (p1 - circle.Frame.Origin).Unit, circle.Frame.DirZ);
+                var param2 = Vector.SignedAngle(circle.Frame.DirX, (p2 - circle.Frame.Origin).Unit, circle.Frame.DirZ);
+
+                if (param1 < 0.0) param1 = 2 * Math.PI + param1;
+                if (param2 < 0.0) param2 = 2 * Math.PI + param2;
+
+                ret.Add(new(line.ProjectPoint(p1), circle.Evaluate(param1)));
+                ret.Add(new(line.ProjectPoint(p2), circle.Evaluate(param2)));
             }
             else if (Accuracy.EqualLengths(circle.Radius, distance))
                 ret.Add(new(proj, circle.ProjectPoint(proj.Point)));

@@ -16,6 +16,8 @@ public interface IBoundedCurve : IBounded, IHasCurve
 
     ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(IBoundedCurve other);
 
+    ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ICurve other);
+
     Point StartPoint { get; }
 
     Point EndPoint { get; }
@@ -23,6 +25,8 @@ public interface IBoundedCurve : IBounded, IHasCurve
     Point MidPoint { get; }
 
     ICurve CreateTransformedCopy(Matrix transfMatrix);
+
+    ICollection<IBoundedCurve> Split(ICurve curve);
 
     ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options);
 }

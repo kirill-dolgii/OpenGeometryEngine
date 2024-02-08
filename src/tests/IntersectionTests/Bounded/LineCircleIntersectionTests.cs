@@ -18,9 +18,9 @@ public class LineCircleIntersectionTests
 
         var ip = circleSegment.IntersectCurve(lineSegment).Single();
 
-        Assert.That(Accuracy.EqualLengths(ip.FirstEvaluation.Param, 0.00886256313108));
-        Assert.That(Accuracy.EqualAngles(0.899296566986, ip.SecondEvaluation.Param));
-        Assert.That(ip.FirstEvaluation.Point,
+        Assert.That(Accuracy.EqualLengths(ip.SecondEvaluation.Param, 0.00886256313108));
+        Assert.That(Accuracy.EqualAngles(0.899296566986, ip.FirstEvaluation.Param));
+        Assert.That(ip.SecondEvaluation.Point,
             Is.EqualTo(new Point(-0.0189099494951335, 0.0143175378786498, 0)));
     }
 
@@ -39,14 +39,14 @@ public class LineCircleIntersectionTests
 
         Assert.That(ips.Count == 2);
             
-        Assert.That(Accuracy.EqualLengths(ips.First().FirstEvaluation.Param, 0.036511480063));
-        Assert.That(Accuracy.EqualAngles(0.48542313761, ips.First().SecondEvaluation.Param));
-        Assert.That(ips.First().FirstEvaluation.Point,
+        Assert.That(Accuracy.EqualLengths(ips.First().SecondEvaluation.Param, 0.036511480063));
+        Assert.That(Accuracy.EqualAngles(0.48542313761, ips.First().FirstEvaluation.Param));
+        Assert.That(ips.First().SecondEvaluation.Point,
             Is.EqualTo(new Point(0.0474334578255152, 0.0160952700850016, 0)));
 
-        Assert.That(Accuracy.EqualLengths(ips.ElementAt(1).FirstEvaluation.Param, 0.00536817460321));
-        Assert.That(Accuracy.EqualAngles(3.16318807653, ips.ElementAt(1).SecondEvaluation.Param));
-        Assert.That(ips.ElementAt(1).FirstEvaluation.Point,
+        Assert.That(Accuracy.EqualLengths(ips.ElementAt(1).SecondEvaluation.Param, 0.00536817460321));
+        Assert.That(Accuracy.EqualAngles(3.16318807653, ips.ElementAt(1).FirstEvaluation.Param));
+        Assert.That(ips.ElementAt(1).SecondEvaluation.Point,
             Is.EqualTo(new Point(0.02318048695689, 0.0356323855069497, 0)));
     }
 }
