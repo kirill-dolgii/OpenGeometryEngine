@@ -6,7 +6,7 @@ namespace OpenGeometryEngine;
 /// <summary>
 /// Represents a numerical interval defined by a start and end point.
 /// </summary>
-public struct Interval
+public readonly struct Interval
 {
     /// <summary>
     /// Gets the start point of the interval.

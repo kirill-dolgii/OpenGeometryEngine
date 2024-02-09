@@ -9,8 +9,7 @@ public sealed class Line : CurveBase, ILine
     private readonly UnitVec dir;
     private readonly Point origin;
 
-    private static readonly Parametrization defaultLineParametrization =
-        new Parametrization(new Bounds(null, null), Form.Open);
+    private static readonly Parametrization defaultLineParametrization = new(new Bounds(null, null), Form.Open);
 
     private Line() {}
 
@@ -42,15 +41,12 @@ public sealed class Line : CurveBase, ILine
     public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ICurve other)
     {
         if (other == null) throw new ArgumentNullException();
-        switch (other.Geometry)
+        return other.Geometry switch
         {
-            case Line line:
-                return LineLineIntersection.LineIntersectLine(this, line);
-            case Circle circle:
-                return LineCircleIntersection.LineIntersectCircle(this, circle);
-            default:
-                throw new NotImplementedException();
-        }
+            Line line => LineLineIntersection.LineIntersectLine(this, line),
+            Circle circle => LineCircleIntersection.LineIntersectCircle(this, circle),
+            _ => throw new NotImplementedException()
+        };
     }
 
     public UnitVec Direction => dir;

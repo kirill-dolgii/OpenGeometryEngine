@@ -49,8 +49,7 @@ public readonly struct Vector : IEquatable<Vector>
     /// <param name="a">The first vector.</param>
     /// <param name="b">The second vector.</param>
     /// <returns>New vector that represents the result of the addition.</returns>
-    public static Vector operator +(Vector a, Vector b) =>
-        new Vector(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+    public static Vector operator +(Vector a, Vector b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
 
     /// <summary>
     /// Multiplies a vector by a scalar value.
@@ -70,8 +69,7 @@ public readonly struct Vector : IEquatable<Vector>
     /// <param name="a">The vector to multiply.</param>
     /// <param name="b">The scalar value.</param>
     /// <returns>New vector that represents the result of the subtraction.</returns>
-    public static Vector operator -(Vector a, Vector b) =>
-        new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+    public static Vector operator -(Vector a, Vector b) => new (a.X - b.X, a.Y - b.Y, a.Z - b.Z);
 
     public static Vector operator -(Vector a) => a * -1;
 
@@ -119,7 +117,7 @@ public readonly struct Vector : IEquatable<Vector>
     /// but with a magnitude of 1 (a unit vector).
     /// </summary>
     /// <returns>A normalized vector.</returns>
-    public Vector Normalize() => new Vector(X / Magnitude, Y / Magnitude, Z / Magnitude);
+    public Vector Normalize() => new (X / Magnitude, Y / Magnitude, Z / Magnitude);
 
     //public bool IsParallel(Vector other)
     //    => Accuracy.AngleIsZero(Angle(other));
@@ -154,8 +152,14 @@ public readonly struct Vector : IEquatable<Vector>
         double axisX, double axisY, double axisZ)
     {
         var cross = Cross(x1, y1, z1, x2, y2, z2);
+        var angle = Angle(x1, y1, z1, x2, y2, z2);
+        if (Accuracy.LengthIsZero(cross.Magnitude))
+        {
+            var dot = Vector.Dot(x1, y1, z1, x2, y2, z2);
+            return dot > 0 ? angle : -angle;
+        }
         var sign = Math.Sign(Dot(cross.X, cross.Y, cross.Z, axisX, axisY, axisZ));
-        return sign * Angle(x1, y1, z1, x2, y2, z2);
+        return sign * angle;
     }
 
     public static double SignedAngle(Vector vector1, Vector vector2, Vector axis)

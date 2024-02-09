@@ -69,7 +69,7 @@ public class Arc : IBoundedCurve
 
     public IGeometry Geometry => Circle;
 
-    public TGeometry GetGeometry<TGeometry>() where TGeometry : class, IGeometry => Circle as TGeometry;
+    public TGeometry? GetGeometry<TGeometry>() where TGeometry : class, IGeometry => Circle as TGeometry;
 
     public bool IsGeometry<TGeometry>() where TGeometry : class, IGeometry => Circle is TGeometry;
 

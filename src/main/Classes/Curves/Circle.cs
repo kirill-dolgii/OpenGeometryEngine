@@ -43,15 +43,11 @@ public sealed class Circle : CurveBase, ICircle
     {
         if (other == null) throw new ArgumentNullException();
 
-        switch (other.Geometry)
+        return other.Geometry switch
         {
-            case Line line:
-                return LineCircleIntersection.LineIntersectCircle(line, this);
-            case Circle circle:
-                throw new NotImplementedException();
-            default:
-                throw new NotImplementedException();
-        }
+            Line line => LineCircleIntersection.LineIntersectCircle(line, this),
+            _ => throw new NotImplementedException()
+        };
     }
 
     public ICurve Curve => this;
@@ -81,7 +77,7 @@ public sealed class Circle : CurveBase, ICircle
     public double Radius { get; }
 
     private static readonly Parametrization defaultCircleParametrization =
-        new Parametrization(new Bounds(.0, 2 * Math.PI), Form.Periodic);
+        new(new Bounds(.0, 2 * Math.PI), Form.Periodic);
 
     public static IEnumerable<CircleEvaluation> GetExtremePointInDir(Circle circle, UnitVec dir)
     {
