@@ -55,6 +55,14 @@ public class Graph<TNode, TEdge>
         Directed = directed;
     }
 
+    public Graph(Graph<TNode, TEdge> other) : this(other.Directed, other.NodeEqualityComparer, other.EdgeEqualityComparer)
+    {
+        Argument.IsNotNull(nameof(other), other);
+        _adjacent = new Dictionary<Node, HashSet<Node>>(other._adjacent);
+        _edges = new Dictionary<(Node x, Node y), TEdge>(other._edges);
+        _map = new Dictionary<TNode, Node>(other._map);
+    }
+
     public Graph(ICollection<TNode> nodes, Func<TNode, ICollection<TNode>> adjecencyFinder, 
         Func<(TNode, TNode), TEdge> edgeFinder, bool directed) : this(directed)
     {
@@ -69,18 +77,31 @@ public class Graph<TNode, TEdge>
         }
     }
 
+    public static Graph<TNode, TEdge> Copy(Graph<TNode, TEdge> other, ICollection<TNode> nodes)
+    {
+        Argument.IsNotNull(nameof(other), other);
+        Argument.IsNotNull(nameof(nodes), nodes);
+
+        var graph = new Graph<TNode, TEdge>(other);
+        var exceptNodes = other.Nodes.Except(nodes, other.NodeEqualityComparer);
+        foreach (var node in exceptNodes)
+        {
+            graph.RemoveNode(node);
+        }
+        return graph;
+    }
+
     public ICollection<TNode> AdjacentNodes(TNode node) => _adjacent[_map[node]].Select(n => n.Item).ToArray();
 
     public TEdge Edge(TNode x, TNode y) => _edges[(_map[x], _map[y])];
 
-    public ICollection<TEdge> Edges(TNode x)
+    public ICollection<TEdge> AdjacentEdges(TNode x)
     {
         Node xNode = _map[x];
         return _adjacent[_map[x]].Select(y => _edges[(xNode, y)]).ToList();
     }
 
-    public ICollection<(TNode x, TNode y, TEdge edge)> Edges()
-        => _edges.Select(kv => (kv.Key.x.Item, kv.Key.y.Item, kv.Value)).ToList();
+    public ICollection<TEdge> Edges => _edges.Select(kv => kv.Value).ToList();
 
     public int EdgesCount => Directed ? _edgesCount : _edgesCount / 2;
 
@@ -248,7 +269,7 @@ public class Graph<TNode, TEdge>
         }
         return ret;
     }
-
+    
     public ICollection<TNode> Nodes => _adjacent.Keys.Select(n => n.Item).ToArray();
 
     public int NodesCount => _adjacent.Count;
