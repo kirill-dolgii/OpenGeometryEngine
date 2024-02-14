@@ -2,22 +2,39 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenGeometryEngine;
+using OpenGeometryEngine.Interfaces;
 
 namespace DataStructures.Graph;
 
-public class Graph<TNode, TEdge>
+public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
 {
-    private readonly IDictionary<Node, HashSet<Node>> _adjacent;
+    protected readonly IDictionary<Node, HashSet<Node>> _adjacent;
 
-    private readonly IDictionary<TNode, Node> _map;
+    protected readonly IDictionary<TNode, Node> _map;
 
-    private readonly IDictionary<(Node x, Node y), TEdge> _edges;
+    protected readonly IDictionary<(Node x, Node y), TEdge> _edges;
 
+    private int _edgesCount;
+    
     public IEqualityComparer<TNode> NodeEqualityComparer { get; }
 
     public IEqualityComparer<TEdge> EdgeEqualityComparer { get; }
 
-    private int _edgesCount;
+    private Graph(IDictionary<TNode, ICollection<TNode>> adjacency,
+                  IDictionary<(TNode, TNode), TEdge> edges,
+                  IEqualityComparer<TNode> nodeEqualityComparer,
+                  IEqualityComparer<TEdge> edgeEqualityComparer,
+                  bool directed)
+    {
+        EdgeEqualityComparer = edgeEqualityComparer;
+        NodeEqualityComparer = nodeEqualityComparer;
+        Directed = directed;
+        _map = adjacency.Keys.ToDictionary(n => n, n => new Node(n), NodeEqualityComparer);
+        _adjacent = adjacency.ToDictionary(kv => _map[kv.Key],
+            kv => new HashSet<Node>(kv.Value.Select(n => _map[n])));
+        _edges = edges.ToDictionary(kv => (_map[kv.Key.Item1], _map[kv.Key.Item2]), kv => kv.Value);
+        _edgesCount = Directed ? _edges.Count / 2 : _edges.Count;
+    }
 
     /// <summary>
     /// Constructs an empty Graph object with default EqualityComparer for TEdge and TNode.
@@ -38,37 +55,16 @@ public class Graph<TNode, TEdge>
              edgeEqualityComparer,
              directed)
     { }
-
-    private Graph(IDictionary<TNode, ICollection<TNode>> adjacency,
-                  IDictionary<(TNode, TNode), TEdge> edges,
-                  IEqualityComparer<TNode> nodeEqualityComparer,
-                  IEqualityComparer<TEdge> edgeEqualityComparer,
-                  bool directed)
-    {
-        NodeEqualityComparer = nodeEqualityComparer;
-        _map = adjacency.Keys.ToDictionary(n => n, n => new Node(n), NodeEqualityComparer);
-        _adjacent = adjacency.ToDictionary(kv => _map[kv.Key],
-                                           kv => new HashSet<Node>(kv.Value.Select(n => _map[n])));
-        _edges = edges.ToDictionary(kv => (_map[kv.Key.Item1], _map[kv.Key.Item2]), kv => kv.Value);
-        EdgeEqualityComparer = edgeEqualityComparer;
-        NodeEqualityComparer = nodeEqualityComparer;
-        Directed = directed;
-    }
-
-    public Graph(Graph<TNode, TEdge> other) : this(other.Directed, other.NodeEqualityComparer, other.EdgeEqualityComparer)
-    {
-        Argument.IsNotNull(nameof(other), other);
-        _adjacent = new Dictionary<Node, HashSet<Node>>(other._adjacent);
-        _edges = new Dictionary<(Node x, Node y), TEdge>(other._edges);
-        _map = new Dictionary<TNode, Node>(other._map);
-    }
-
-    public Graph(ICollection<TNode> nodes, Func<TNode, ICollection<TNode>> adjecencyFinder, 
-        Func<(TNode, TNode), TEdge> edgeFinder, bool directed) : this(directed)
+    
+    public Graph(ICollection<TNode> nodes, Func<TNode, ICollection<TNode>> adjacencyFinder, 
+                 Func<(TNode, TNode), TEdge> edgeFinder,
+                 IEqualityComparer<TNode> nodeEqualityComparer, 
+                 IEqualityComparer<TEdge> edgeEqualityComparer, bool directed) 
+        : this(directed, nodeEqualityComparer, edgeEqualityComparer)
     {
         foreach (var node in nodes)
         {
-            var neighbours = adjecencyFinder(node);
+            var neighbours = adjacencyFinder(node);
             foreach (var neighbour in neighbours)
             {
                 var edge = edgeFinder.Invoke((node, neighbour));
@@ -82,7 +78,12 @@ public class Graph<TNode, TEdge>
         Argument.IsNotNull(nameof(other), other);
         Argument.IsNotNull(nameof(nodes), nodes);
 
-        var graph = new Graph<TNode, TEdge>(other);
+        var adj = other._adjacent.ToDictionary(kv => kv.Key.Item, 
+                                               kv => (ICollection<TNode>)kv.Value.Select(n => n.Item).ToArray());
+        var edges = other._edges.ToDictionary(kv => (kv.Key.x.Item, kv.Key.y.Item), kv => kv.Value);
+
+        var graph = new Graph<TNode, TEdge>(adj, edges, other.NodeEqualityComparer, 
+                                            other.EdgeEqualityComparer, other.Directed);
         var exceptNodes = other.Nodes.Except(nodes, other.NodeEqualityComparer);
         foreach (var node in exceptNodes)
         {
@@ -91,21 +92,29 @@ public class Graph<TNode, TEdge>
         return graph;
     }
 
+    public int NodesCount => _adjacent.Count;
+
+    public ICollection<TNode> Nodes => _adjacent.Keys.Select(n => n.Item).ToArray();
+
     public ICollection<TNode> AdjacentNodes(TNode node) => _adjacent[_map[node]].Select(n => n.Item).ToArray();
-
-    public TEdge Edge(TNode x, TNode y) => _edges[(_map[x], _map[y])];
-
+    
     public ICollection<TEdge> AdjacentEdges(TNode x)
     {
         Node xNode = _map[x];
         return _adjacent[_map[x]].Select(y => _edges[(xNode, y)]).ToList();
     }
 
-    public ICollection<TEdge> Edges => _edges.Select(kv => kv.Value).ToList();
+    public ICollection<TEdge> Edges => _edges.Select(kv => kv.Value).Distinct(EdgeEqualityComparer).ToList();
+
+    public TEdge Edge(TNode x, TNode y) => _edges[(_map[x], _map[y])];
 
     public int EdgesCount => Directed ? _edgesCount : _edgesCount / 2;
 
     public bool Directed { get; }
+
+    public int Degree(TNode node) => DegreeImpl(_map[node]);
+
+    protected int DegreeImpl(Node node) => _adjacent[node].Count;
 
     public bool AddNode(TNode node)
     {
@@ -113,11 +122,32 @@ public class Graph<TNode, TEdge>
         return AddNodeImpl(graphNode);
     }
 
-    private bool AddNodeImpl(Node node)
+    protected bool AddNodeImpl(Node node)
     {
         if (ContainsNodeImpl(node)) return false;
         _map[node.Item] = node;
         _adjacent[node] = new HashSet<Node>();
+        return true;
+    }
+
+    public bool AddEdge(TNode x, TNode y, TEdge edge)
+    {
+        if (!ContainsNode(x)) AddNode(x);
+        if (!ContainsNode(y)) AddNode(y);
+        if (ContainsEdge(x, y)) return false;
+        Node xNode = _map[x];
+        Node yNode = _map[y];
+        AddEdgeImpl(xNode, yNode, edge, Directed);
+        return true;
+    }
+
+    protected bool AddEdgeImpl(Node x, Node y, TEdge edge, bool directed)
+    {
+        if (ContainsEdgeImpl(x, y)) return false;
+        _edges[(x, y)] = edge;
+        _adjacent[x].Add(y);
+        _edgesCount++;
+        if (!directed) return AddEdgeImpl(y, x, edge, true);
         return true;
     }
 
@@ -126,69 +156,84 @@ public class Graph<TNode, TEdge>
         return _map.ContainsKey(node) && ContainsNodeImpl(_map[node]);
     }
 
-    private bool ContainsNodeImpl(Node node)
+    protected bool ContainsNodeImpl(Node node)
         => _adjacent.ContainsKey(node);
 
+    public bool ContainsEdge(TNode x, TNode y)
+    {
+        if (!ContainsNode(x) || ContainsNode(y)) return false;
+        var xNode = _map[x];
+        var yNode = _map[y];
+        return ContainsEdgeImpl(xNode, yNode);
+    }
+
+    protected bool ContainsEdgeImpl(Node x, Node y)
+    {
+        return _edges.ContainsKey((x, y));
+    }
+    
     public bool RemoveNode(TNode node)
     {
         if (!ContainsNode(node)) return false;
-        foreach (var kv in _edges.Where(kv => NodeEqualityComparer.Equals(kv.Key.y.Item, node)))
-                RemoveEdge(kv.Key.x.Item, kv.Key.y.Item, kv.Value);
+        var adjacentEdges = _edges.Where(kv => NodeEqualityComparer.Equals(kv.Key.y.Item, node)).ToList();
+        foreach (var kv in adjacentEdges)
+                RemoveEdge(kv.Key.x.Item, kv.Key.y.Item);
         _adjacent.Remove(_map[node]);
         return true;
     }
 
-    public int Degree(TNode node) => _adjacent[_map[node]].Count;
-
-    public bool AddEdge(TNode x, TNode y, TEdge edge)
-    {
-        if (!ContainsNode(x)) AddNode(x);
-        if (!ContainsNode(y)) AddNode(y);
-        if (ContainsEdge(x, y, edge)) return false;
-        Node xNode = _map[x];
-        Node yNode = _map[y];
-        AddEdgeImpl(xNode, yNode, edge, Directed);
-        return true;
-    }
-
-    private bool AddEdgeImpl(Node x, Node y, TEdge edge, bool directed)
-    {
-        if (ContainsEdgeImpl(x, y, edge)) return false;
-        _edges[(x, y)] = edge;
-        _adjacent[x].Add(y);
-        _edgesCount++;
-        if (!directed) return AddEdgeImpl(y, x, edge, true);
-        return true;
-    }
-
-    public bool ContainsEdge(TNode x, TNode y, TEdge edge)
-    {
-        var graphX = _map[x];
-        var graphY = _map[y];
-        return ContainsEdgeImpl(graphX, graphY, edge);
-    }
-
-    private bool ContainsEdgeImpl(Node x, Node y, TEdge edge)
-    {
-        var tpl = (x, y);
-        return _edges.ContainsKey(tpl) && EdgeEqualityComparer.Equals(_edges[tpl], edge);
-    }
-
-    public bool RemoveEdge(TNode x, TNode y, TEdge edge)
+    public bool RemoveEdge(TNode x, TNode y)
     {
         Node xNode = _map[x];
         Node yNode = _map[y];
-        return RemoveEdgeImpl(xNode, yNode, edge, Directed);
+        return RemoveEdgeImpl(xNode, yNode);
     }
 
-    private bool RemoveEdgeImpl(Node x, Node y, TEdge edge, bool directed)
+    protected bool RemoveEdgeImpl(Node x, Node y)
     {
-        if (!ContainsEdgeImpl(x, y, edge)) return false;
+        if (!ContainsEdgeImpl(x, y)) return false;
         _edges.Remove((x, y));
         _adjacent[x].Remove(y);
         _edgesCount--;
-        if (!directed) RemoveEdgeImpl(y, x, edge, true);
+        if (!Directed) RemoveEdgeImpl(y, x);
         return true;
+    }
+
+    public static Graph<TNode, TEdge> Combine(Graph<TNode, TEdge> first, Graph<TNode, TEdge> second)
+    {
+        Argument.IsNotNull(nameof(second), second);
+        foreach (var edge in second._edges)
+        {
+            first.AddEdge(edge.Key.x.Item, edge.Key.y.Item, edge.Value);
+        }
+        return first;
+    }
+
+    public ICollection<Graph<TNode, TEdge>> Split()
+    {
+        if (EdgesCount == 0) throw new Exception("Graph is empty");
+        if (NodesCount == 0) throw new Exception("Graph is empty");
+
+        var ret = new LinkedList<Graph<TNode, TEdge>>();
+
+        var nodes = new HashSet<TNode>(Nodes, NodeEqualityComparer);
+        while (nodes.Any())
+        {
+            var start = nodes.First();
+            var bfs = BreadthTraversal(start);
+            var bfsNodes = bfs.Select(tpl => tpl.Item2).ToArray();
+            foreach (var tpl in bfs)
+            {
+                nodes.Remove(tpl.Item2);
+            }
+            nodes.Remove(start);
+            var newGraph = new Graph<TNode, TEdge>(bfsNodes,
+                n => _adjacent[_map[n]].Select(mapped => mapped.Item).ToArray(),
+                n => _edges[(_map[n.Item1], _map[n.Item2])],
+                NodeEqualityComparer, EdgeEqualityComparer, Directed);
+            ret.AddLast(newGraph);
+        }
+        return ret;
     }
 
     public ICollection<ValueTuple<TNode, TNode, TEdge>> DepthTraversal(TNode start)
@@ -201,7 +246,7 @@ public class Graph<TNode, TEdge>
     }
 
     private IEnumerable<ValueTuple<Node, Node, TEdge>> DepthTraversalHelp(Node node, 
-        Dictionary<Node, bool> visited)
+                                                                          Dictionary<Node, bool> visited)
     {
         visited[node] = true;
         foreach (var adjacent in _adjacent[node])
@@ -244,37 +289,7 @@ public class Graph<TNode, TEdge>
         return path.Select(tpl => (tpl.Item1.Item, tpl.Item2.Item, tpl.Item3)).ToArray();
     }
 
-    public ICollection<Graph<TNode, TEdge>> Split()
-    {
-        if (EdgesCount == 0) throw new Exception("Graph is empty");
-        if (NodesCount == 0) throw new Exception("Graph is empty");
-
-        var ret = new LinkedList<Graph<TNode, TEdge>>();
-
-        var nodes = new HashSet<TNode>(Nodes, NodeEqualityComparer);
-        while (nodes.Any())
-        {
-            var start = nodes.First();
-            var bfs = BreadthTraversal(start);
-            var bfsNodes = bfs.Select(tpl => tpl.Item2).ToArray();
-            foreach (var tpl in bfs)
-            {
-                nodes.Remove(tpl.Item2);
-            }
-            nodes.Remove(start);
-            var newGraph = new Graph<TNode, TEdge>(bfsNodes, 
-                n => _adjacent[_map[n]].Select(mapped => mapped.Item).ToArray(), 
-                n => _edges[(_map[n.Item1], _map[n.Item2])], Directed);
-            ret.AddLast(newGraph);
-        }
-        return ret;
-    }
-    
-    public ICollection<TNode> Nodes => _adjacent.Keys.Select(n => n.Item).ToArray();
-
-    public int NodesCount => _adjacent.Count;
-
-    private class Node
+    protected class Node
     {
         public readonly TNode Item;
 
