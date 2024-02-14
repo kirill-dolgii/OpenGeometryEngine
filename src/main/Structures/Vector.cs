@@ -194,16 +194,7 @@ public readonly struct Vector : IEquatable<Vector>
         return obj is Vector other && Equals(other);
     }
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hashCode = X.GetHashCode();
-            hashCode = (hashCode * 397) ^ Y.GetHashCode();
-            hashCode = (hashCode * 397) ^ Z.GetHashCode();
-            return hashCode;
-        }
-    }
+    public override int GetHashCode() => Hashing.GetHashCode(this);
 
     public static bool operator ==(Vector left, Vector right)=> left.Equals(right);
 

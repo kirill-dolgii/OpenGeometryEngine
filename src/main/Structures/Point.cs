@@ -63,6 +63,8 @@ public readonly struct Point : IEquatable<Point>
     public static Vector operator -(Point point1, Point point2) =>
         new (point1.X - point2.X, point1.Y - point2.Y, point1.Z - point2.Z);
 
+    public override int GetHashCode() => Hashing.GetHashCode(this);
+
     public bool Equals(Point other)
     {
         return Accuracy.EqualLengths(X, other.X) &&
