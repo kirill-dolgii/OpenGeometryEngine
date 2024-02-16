@@ -36,6 +36,8 @@ public readonly struct UnitVec : IEquatable<UnitVec>
 
     public UnitVec(Vector vector) : this(vector.X, vector.Y, vector.Z) {}
 
+    public UnitVec Reverse() => new (-X, -Y, -Z);
+
     public static bool AreParallel(UnitVec unit1, UnitVec unit2)
     {
         var cross = Vector.Cross(unit1, unit2).Magnitude;

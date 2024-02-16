@@ -51,7 +51,7 @@ public class LineSegment : IBoundedCurve
 
     public ICurveEvaluation ProjectPoint(Point point)
     {
-        var param = Vector.Dot(point.Vector, Line.Direction);
+        var param = Vector.Dot(point.Vector - Line.Origin.Vector, Line.Direction);
         return new LineEvaluation(Line, param);
     }
 
@@ -80,7 +80,7 @@ public class LineSegment : IBoundedCurve
             case Line line:
             {
                 var inters = Line.IntersectCurve(line);
-                return inters.ToArray();
+                return inters.Where(ip => Accuracy.WithinLengthInterval(Interval, ip.FirstEvaluation.Param)).ToArray();
             }
             default: throw new NotImplementedException();
         }

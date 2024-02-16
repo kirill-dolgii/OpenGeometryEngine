@@ -15,15 +15,17 @@ public static class LinesegmentFillet
         Argument.IsNotNull(nameof(first), first);
         Argument.IsNotNull(nameof(second), second);
 
-        var commonPoints = first.StartEndPoints.Intersect(second.StartEndPoints).ToList();
+        var pntComparer = new PointEqualityComparer();
+
+        var commonPoints = first.StartEndPoints.Intersect(second.StartEndPoints, pntComparer).ToList();
 
         if (!commonPoints.Any()) throw new NoCommonPointException(nameof(first), nameof(second));
         if (commonPoints.Count() > 1) throw new Exception("Lines are equal");
 
         var commonPoint = commonPoints.Single();
 
-        var firstPoint = first.StartEndPoints.Except(commonPoints).ToList().Single();
-        var secondPoint = second.StartEndPoints.Except(commonPoints).ToList().Single();
+        var firstPoint = first.StartEndPoints.Except(commonPoints, pntComparer).ToList().Single();
+        var secondPoint = second.StartEndPoints.Except(commonPoints, pntComparer).ToList().Single();
 
         var firstTangent = (firstPoint - commonPoint).Unit;
         var secondTangent = (secondPoint - commonPoint).Unit;
@@ -35,11 +37,11 @@ public static class LinesegmentFillet
         var angle = Vector.Angle(firstTangent, secondTangent);
         var cos = Math.Cos(angle / 2);
         var shift = radius / cos;
-        var circleCenter = (circleCenterVec * shift).ToPoint();
+        var circleCenter = commonPoint + circleCenterVec * shift;
 
         var arc = new Arc(circleCenter,
             first.ProjectPoint(circleCenter).Point,
-            second.ProjectPoint(circleCenter).Point, cross);
+            second.ProjectPoint(circleCenter).Point, cross.Reverse());
 
         var ret = Iterate.Over<IBoundedCurve>(new LineSegment(firstPoint, first.Line.ProjectPoint(circleCenter).Point),
                             arc,
