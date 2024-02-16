@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenGeometryEngine;
-using OpenGeometryEngine.Interfaces;
 
 namespace DataStructures.Graph;
 

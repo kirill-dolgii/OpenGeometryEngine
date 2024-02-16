@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace OpenGeometryEngine.Interfaces;
+namespace OpenGeometryEngine;
 
 public interface IGraph<TNode, TEdge>
 {

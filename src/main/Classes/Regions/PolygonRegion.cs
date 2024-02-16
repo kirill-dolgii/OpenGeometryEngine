@@ -50,11 +50,6 @@ public class PolygonRegion : IFlatRegion
         return Math.Abs(area) / 2;
     }
     
-    private double CrossProduct2D(double x1, double y1, double x2, double y2)
-    {
-        return x1 * y2 - x2 * y1;
-    }
-
     // Naive self-intersection test
     internal static bool SelfIntersects(LineSegment[] lines)
     {

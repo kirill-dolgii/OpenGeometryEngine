@@ -18,9 +18,14 @@ public class PolyLineRegionTests
             new LineSegment(Point.Origin, new Point(0.0, 0.01, 0.0)),
         };
 
-        var polylineRegion = new OpenGeometryEngine.Regions.PolyLineRegion(curves, Plane.PlaneXY);
-        Assert.That(Accuracy.EqualLengths(polylineRegion.Length, 0.04570796), Is.True);
-        Assert.That(Accuracy.CompareWithTolerance(polylineRegion.Area, 0.0001392699, Math.Sqrt(Accuracy.LinearTolerance)) == 0, Is.True);
+        var regions = OpenGeometryEngine.Regions.PolyLineRegion.CreatePolygons(curves, Plane.PlaneXY);
+
+        Assert.That(regions, Has.Count.EqualTo(1));
+
+        var region = regions.Single();
+
+        Assert.That(Accuracy.EqualLengths(region.Length, 0.04570796), Is.True);
+        Assert.That(Accuracy.CompareWithTolerance(region.Area, 0.0001392699, Math.Sqrt(Accuracy.LinearTolerance)) == 0, Is.True);
     }
 
     [Test]
@@ -38,9 +43,14 @@ public class PolyLineRegionTests
             new LineSegment(new Point(0.003, 0.01, 0.0), new Point(0.003, 0.002, 0.0)),
         };
 
-        var polylineRegion = new OpenGeometryEngine.Regions.PolyLineRegion(curves, Plane.PlaneXY);
-        Assert.That(Accuracy.EqualLengths(polylineRegion.Length, 0.069707963267948952), Is.True);
-        Assert.That(Accuracy.CompareWithTolerance(polylineRegion.Area, 0.00010726990816987235, Math.Sqrt(Accuracy.LinearTolerance)) == 0, Is.True);
+        var regions = OpenGeometryEngine.Regions.PolyLineRegion.CreatePolygons(curves, Plane.PlaneXY);
+        
+        Assert.That(regions, Has.Count.EqualTo(1));
+
+        var region = regions.Single();
+
+        Assert.That(Accuracy.EqualLengths(region.Length, 0.069707963267948952), Is.True);
+        Assert.That(Accuracy.CompareWithTolerance(region.Area, 0.00010726990816987235, Math.Sqrt(Accuracy.LinearTolerance)) == 0, Is.True);
     }
 
     [Test]
@@ -54,7 +64,11 @@ public class PolyLineRegionTests
             new LineSegment(Point.Origin, new Point(0.01, 0.01, 0.0)),
         };
 
-        Assert.That(() => new OpenGeometryEngine.Regions.PolyLineRegion(curves, Plane.PlaneXY), 
+        Assert.That(
+        () =>
+            {
+                return OpenGeometryEngine.Regions.PolyLineRegion.CreatePolygons(curves, Plane.PlaneXY);
+            }, 
             Throws.InstanceOf(typeof(SelfIntersectingRegionException)));
     }
 
@@ -81,7 +95,11 @@ public class PolyLineRegionTests
 
         var splitLine = new Line(sp0, sp1);
 
-        var region = new OpenGeometryEngine.Regions.PolyLineRegion(curves, Plane.PlaneXY);
+        var regions = OpenGeometryEngine.Regions.PolyLineRegion.CreatePolygons(curves, Plane.PlaneXY);
+
+        Assert.That(regions, Has.Count.EqualTo(1));
+
+        var region = regions.Single();
 
         var splited = region.Split(splitLine);
         

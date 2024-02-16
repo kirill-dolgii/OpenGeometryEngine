@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenGeometryEngine.Exceptions.Region;
+namespace OpenGeometryEngine.Exceptions;
 
 public class NoLoopsException : Exception
 {
