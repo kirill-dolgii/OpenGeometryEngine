@@ -34,7 +34,7 @@ public static class LinesegmentFillet
 
         var cross = Vector.Cross(firstTangent, secondTangent).Unit;
 
-        var angle = Vector.Angle(firstTangent, secondTangent);
+        var angle = Math.PI - Vector.Angle(firstTangent, secondTangent);
         var cos = Math.Cos(angle / 2);
         var shift = radius / cos;
         var circleCenter = commonPoint + circleCenterVec * shift;
