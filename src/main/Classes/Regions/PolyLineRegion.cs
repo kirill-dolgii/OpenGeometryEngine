@@ -17,7 +17,7 @@ public sealed class PolyLineRegion : IFlatRegion
     private readonly Graph<Point, IBoundedCurve> _graph;
     private bool _isOuter;
 
-    public static ICollection<PolyLineRegion> CreatePolygons(ICollection<IBoundedCurve> curves, 
+    public static ICollection<PolyLineRegion> CreatePolygons(ICollection<IBoundedCurve> curves,
                                                              Plane plane)
     {
         Argument.IsNotNull(nameof(curves), curves);
@@ -31,7 +31,7 @@ public sealed class PolyLineRegion : IFlatRegion
         });
 
         var polygonsGrouped = polygons.ToDictionary(
-            kv1 => kv1.Key, 
+            kv1 => kv1.Key,
             kv1 => polygons.Where(kv2 => kv1.Key != kv2.Key && kv1.Key.Contains(kv2.Key))
                            .Select(kv => kv.Key).ToArray());
 
@@ -50,11 +50,11 @@ public sealed class PolyLineRegion : IFlatRegion
             return new PolyLineRegion(polygons[region], region,
                 innerRegions.Select(r => polygons[r]).ToArray(), innerRegions, plane);
         }).ToArray();
-        
+
         return regions;
     }
 
-    private PolyLineRegion(IBoundedCurve[] outerCurves, 
+    private PolyLineRegion(IBoundedCurve[] outerCurves,
                            PolygonRegion outerPolygon,
                            ICollection<IBoundedCurve[]> innerCurves,
                            ICollection<PolygonRegion> innerRegions,
@@ -67,7 +67,7 @@ public sealed class PolyLineRegion : IFlatRegion
         _graph = new CurveGraph(outerCurves.Concat(innerCurves.SelectMany(curves => curves)).ToArray(), plane);
         _isOuter = true;
         InnerRegions = innerRegions
-            .Zip(innerCurves, 
+            .Zip(innerCurves,
                 (polygon, curves) =>
                 {
                     var region = new PolyLineRegion(curves, polygon,
@@ -79,23 +79,29 @@ public sealed class PolyLineRegion : IFlatRegion
         Area = _polygon.Area - InnerRegions.Sum(ir => ir.Area);
         Length = _curves.Sum(curve => curve.Length) + InnerRegions.Sum(inner => inner.Length);
     }
-    
-    public ICollection<PolyLineRegion> Split(Line line)
+
+    public Pair<ICollection<PolyLineRegion>> Split(Line line)
     {
         Argument.IsNotNull(nameof(line), line);
 
-        var intersections = _graph.Edges.SelectMany(curve => curve.IntersectCurve(line))
-            .OrderBy(ip => ip.SecondEvaluation.Param).Select(ip => ip.FirstEvaluation.Point).ToArray();
+        var graph = Graph<Point, IBoundedCurve>.Copy(_graph, _graph.Nodes);
 
-        var splittedMap = _graph.Edges.ToDictionary(curve => curve, curve => curve.Split(line))
+        var pntComparer = new PointEqualityComparer();
+
+        var intersections = graph.Edges.SelectMany(curve => curve.IntersectCurve(line))
+            .OrderBy(ip => ip.SecondEvaluation.Param).Select(ip => ip.FirstEvaluation.Point)
+            .Distinct(pntComparer)
+            .ToArray();
+
+        var splittedMap = graph.Edges.ToDictionary(curve => curve, curve => curve.Split(line))
             .Where(kv => kv.Value.Any()).ToDictionary(kv => kv.Key, kv => kv.Value);
 
         foreach (var kv in splittedMap)
         {
-            _graph.RemoveEdge(kv.Key.StartPoint, kv.Key.EndPoint);
+            graph.RemoveEdge(kv.Key.StartPoint, kv.Key.EndPoint);
             foreach (var splited in kv.Value)
             {
-                _graph.AddEdge(splited.StartPoint, splited.EndPoint, splited);
+                graph.AddEdge(splited.StartPoint, splited.EndPoint, splited);
             }
         }
 
@@ -103,22 +109,23 @@ public sealed class PolyLineRegion : IFlatRegion
         for (int i = 0; i < intersectionPairs.Length; i++)
         {
             if (i % 2 != 0) continue;
-            _graph.AddEdge(intersectionPairs[i].Item1, intersectionPairs[i].Item2, 
+            graph.AddEdge(intersectionPairs[i].Item1, intersectionPairs[i].Item2,
                 new LineSegment(intersectionPairs[i].Item1, intersectionPairs[i].Item2));
         }
 
-        var ret = Iterate.Over(1d, -1d).SelectMany(sign =>
+        var ret = Iterate.Over(1d, -1d).Select(sign =>
         {
-            var nodes = _graph.Nodes
+            var nodes = graph.Nodes
                 .Where(node => !Accuracy.LengthIsZero((node - line.Origin).Magnitude) &&
-                                sign * Vector.SignedAngle(line.Direction, (node - line.Origin).Unit, Frame.World.DirZ) >= 0)
+                        (sign * Vector.SignedAngle(line.Direction, (node - line.Origin).Unit, Frame.World.DirZ) >= 0 ||
+                         Accuracy.LengthIsZero(Vector.Cross(line.Direction, (node - line.Origin).Unit).Magnitude)))
                 .ToList();
-            if (_graph.ContainsNode(line.Origin)) nodes.Add(line.Origin);
-            var graphs = Graph<Point, IBoundedCurve>.Copy(_graph, nodes).Split();
+            if (nodes.Count == 0) return Array.Empty<PolyLineRegion>();
+            var graphs = Graph<Point, IBoundedCurve>.Copy(graph, nodes).Split();
             return CreatePolygons(graphs.SelectMany(gr => gr.Edges).ToArray(), Plane).ToArray();
-        }).ToArray();
+        }).Where(p => p != null).ToArray();
 
-        return ret;
+        return new Pair<ICollection<PolyLineRegion>>(ret[0], ret[1]);
     }
 
     public IEnumerator<IBoundedCurve> GetEnumerator()
@@ -142,7 +149,7 @@ public sealed class PolyLineRegion : IFlatRegion
     private ReadOnlyCollection<IBoundedCurve>? _curvesReadOnly;
     public ICollection<IBoundedCurve> Curves
     {
-        get 
+        get
         {
             if (_curvesReadOnly == null) _curvesReadOnly = new ReadOnlyCollection<IBoundedCurve>(_curves.ToList());
             return _curvesReadOnly;
