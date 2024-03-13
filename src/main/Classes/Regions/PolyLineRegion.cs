@@ -117,8 +117,9 @@ public sealed class PolyLineRegion : IFlatRegion
         {
             var nodes = graph.Nodes
                 .Where(node => !Accuracy.LengthIsZero((node - line.Origin).Magnitude) &&
-                        (sign * Vector.SignedAngle(line.Direction, (node - line.Origin).Unit, Frame.World.DirZ) >= 0 ||
-                         Accuracy.LengthIsZero(Vector.Cross(line.Direction, (node - line.Origin).Unit).Magnitude)))
+                                sign * Vector.SignedAngle(line.Direction, (node - line.Origin).Unit, Frame.World.DirZ) >= 0)
+                .Concat(intersections)
+                .Distinct(pntComparer)
                 .ToList();
             if (nodes.Count == 0) return Array.Empty<PolyLineRegion>();
             var graphs = Graph<Point, IBoundedCurve>.Copy(graph, nodes).Split();
