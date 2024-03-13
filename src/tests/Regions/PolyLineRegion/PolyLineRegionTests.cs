@@ -103,10 +103,8 @@ public class PolyLineRegionTests
 
         var splited = region.Split(splitLine);
         
-        Assert.That(splited, Has.Count.EqualTo(2));
-
-        var left = splited.ElementAt(0);
-        var right = splited.ElementAt(1);
+        var left = splited.ElementAt(0).Single();
+        var right = splited.ElementAt(1).Single();
 
         Assert.Multiple(() =>
         {

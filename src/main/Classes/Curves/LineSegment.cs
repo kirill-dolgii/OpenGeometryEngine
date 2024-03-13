@@ -105,7 +105,7 @@ public class LineSegment : IBoundedCurve
     public ICollection<IBoundedCurve> Split(ICurve curve)
     {
         Argument.IsNotNull(nameof(curve), curve);
-        var arcParams = new List<Tuple<double, double>>();
+        var arcParams = new List<(double, double)>();
         switch (curve)
         {
             case Line line:

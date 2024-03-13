@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace OpenGeometryEngine.Collections;
 
-internal sealed class CurveGraph : Graph<Point, IBoundedCurve>
+public sealed class CurveGraph : Graph<Point, IBoundedCurve>
 {
 	public Plane Plane { get; }
 
@@ -23,7 +23,7 @@ internal sealed class CurveGraph : Graph<Point, IBoundedCurve>
 
 	public static ICollection<IBoundedCurve[]> GetCounterClockWiseChains(ICollection<IBoundedCurve> curves,
 																		 Plane plane,
-																		 out CurveGraph graph)
+																			 out CurveGraph graph)
 	{
 		Argument.IsNotNull(nameof(curves), curves);
 		graph = new CurveGraph(curves, plane);
@@ -46,10 +46,11 @@ internal sealed class CurveGraph : Graph<Point, IBoundedCurve>
 		}).ToArray();
 	}
 
-	private static ICollection<ValueTuple<Point, Point, IBoundedCurve>> OrderCounterClockWise(Graph<Point, IBoundedCurve> graph, Plane plane)
+	private static ICollection<(Point X, Point Y, IBoundedCurve Edge)> OrderCounterClockWise(Graph<Point, 
+																							 IBoundedCurve> graph, Plane plane)
 	{
 		var start = graph.Nodes.First();
-		var chain = new LinkedList<ValueTuple<Point, Point, IBoundedCurve>>();
+		var chain = new LinkedList<(Point, Point, IBoundedCurve)>();
 		var current = start;
 		do
 		{

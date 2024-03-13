@@ -5,7 +5,7 @@ namespace OpenGeometryEngine;
 
 public static class QuadraticEquationSolver
 {
-    public static ValueTuple<Complex, Complex> Solve(double a, double b, double c)
+    public static (Complex FirstRoot, Complex SecondRoot) Solve(double a, double b, double c)
     {
         if (b == 0d)
         {

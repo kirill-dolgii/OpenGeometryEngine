@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace OpenGeometryEngine.Extensions;
 
 public static class EnumerableExtensions
 {
-    public static IEnumerable<Tuple<T, T>> Pairs<T> (this IEnumerable<T> items, bool closed = false)
+    public static IEnumerable<(T First, T Second)> Pairs<T> (this IEnumerable<T> items, bool closed = false)
     {
         Argument.IsNotNull(nameof(items), items);
         using var enumerator = items.GetEnumerator();
@@ -14,9 +13,9 @@ public static class EnumerableExtensions
         var first = enumerator.Current;
         while (enumerator.MoveNext())
         {
-            yield return Tuple.Create(first, enumerator.Current);
+            yield return (first, enumerator.Current);
             first = enumerator.Current;
         }
-        if (closed) yield return Tuple.Create(first, items.First());
+        if (closed) yield return (first, items.First());
     }
 }

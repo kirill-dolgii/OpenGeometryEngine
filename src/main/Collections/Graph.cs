@@ -235,7 +235,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         return ret;
     }
 
-    public ICollection<ValueTuple<TNode, TNode, TEdge>> DepthTraversal(TNode start)
+    public ICollection<(TNode, TNode, TEdge)> DepthTraversal(TNode start)
     {
         Argument.IsNotNull(nameof(start), start);
         if (!ContainsNode(start)) throw new ArgumentException(nameof(start));
@@ -244,7 +244,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         return path.Select(tpl => (tpl.Item1.Item, tpl.Item2.Item, tpl.Item3)).ToArray();
     }
 
-    private IEnumerable<ValueTuple<Node, Node, TEdge>> DepthTraversalHelp(Node node, 
+    private IEnumerable<(Node, Node, TEdge)> DepthTraversalHelp(Node node, 
                                                                           Dictionary<Node, bool> visited)
     {
         visited[node] = true;
@@ -256,11 +256,11 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         }
     }
 
-    public ICollection<ValueTuple<TNode, TNode, TEdge>> BreadthTraversal(TNode start)
+    public ICollection<(TNode, TNode, TEdge)> BreadthTraversal(TNode start)
     {
         Argument.IsNotNull(nameof(start), start);
         if (!ContainsNode(start)) throw new ArgumentException(nameof(start));
-        var path = new LinkedList<ValueTuple<Node, Node, TEdge>>();
+        var path = new LinkedList<( Node, Node, TEdge)>();
         var queue = new Queue<Node>();
         var visited = _map.Values.ToDictionary(n => n, _ => false);
         var parent = _map.Values.ToDictionary(n => n, n => n);
