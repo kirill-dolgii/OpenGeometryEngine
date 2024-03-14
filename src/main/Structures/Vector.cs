@@ -162,6 +162,42 @@ public readonly struct Vector : IEquatable<Vector>
         return sign * angle;
     }
 
+    public static bool TryGetAngle(double x1, double y1, double z1,
+                                   double x2, double y2, double z2, 
+                                   out double angle)
+    {
+        if (Accuracy.IsZero(CaclMagnitude(x1, y1, z1)) || Accuracy.IsZero(CaclMagnitude(x2, y2, z2)))
+        {
+            angle = 0.0;
+            return false;
+        }
+        var dot = Dot(x1, y1, z1, x2, y2, z2);
+        var magnitude = Cross(x1, y1, z1, x2, y2, z2).Magnitude;
+        if (Accuracy.AngleIsZero(magnitude))
+        {
+            angle = dot > 0.0 ? 0.0 : Math.PI;
+        }
+        else
+        {
+            angle = Math.Atan2(magnitude, dot);
+        }
+        return true;
+    }
+
+    public static bool TryGetAngleClockWiseInDir(double x1, double y1, double z1,
+                                                 double x2, double y2, double z2,
+                                                 double dirX, double dirY, double dirZ,
+                                                 out double angle)
+    {
+        if (!TryGetAngle(x1, y1, z1, x2, y2, z2, out angle)) return false;
+        var cross = Cross(x1, y1, z1, x2, y2, z2);
+        if (Dot(cross.X, cross.Y, cross.Z, dirX, dirY, dirZ) < 0.0)
+        {
+            angle = 2 * Math.PI - angle;
+        }
+        return true;
+    }
+
     public static double SignedAngle(Vector vector1, Vector vector2, Vector axis)
         => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
             vector2.X, vector2.Y, vector2.Z, 
