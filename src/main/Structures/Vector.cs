@@ -184,6 +184,9 @@ public readonly struct Vector : IEquatable<Vector>
         return true;
     }
 
+    public static bool TryGetAngle(Vector vec1, Vector vec2, out double angle) 
+        => TryGetAngle(vec1.X, vec1.Y, vec1.Z, vec2.X, vec2.Y, vec2.Z, out angle);
+
     public static bool TryGetAngleClockWiseInDir(double x1, double y1, double z1,
                                                  double x2, double y2, double z2,
                                                  double dirX, double dirY, double dirZ,
@@ -197,6 +200,9 @@ public readonly struct Vector : IEquatable<Vector>
         }
         return true;
     }
+
+    public static bool TryGetAngleClockWiseInDir(Vector vec1, Vector vec2, Vector dir, out double angle) 
+        => TryGetAngleClockWiseInDir(vec1.X, vec1.Y, vec1.Z, vec2.X, vec2.Y, vec2.Z, dir.X, dir.Y, dir.Z, out angle);
 
     public static double SignedAngle(Vector vector1, Vector vector2, Vector axis)
         => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
