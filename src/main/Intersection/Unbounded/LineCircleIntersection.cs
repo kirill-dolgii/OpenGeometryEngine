@@ -25,8 +25,8 @@ internal static class LineCircleIntersection
                 var p1 = proj.Point + line.Direction * offset;
                 var p2 = proj.Point - line.Direction * offset;
                 
-                var param1 = Vector.SignedAngle(circle.Frame.DirX, (p1 - circle.Frame.Origin).Unit, circle.Frame.DirZ);
-                var param2 = Vector.SignedAngle(circle.Frame.DirX, (p2 - circle.Frame.Origin).Unit, circle.Frame.DirZ);
+                Vector.TryGetAngleClockWiseInDir(circle.Frame.DirX, (p1 - circle.Frame.Origin).Unit, circle.Frame.DirZ, out double param1);
+                Vector.TryGetAngleClockWiseInDir(circle.Frame.DirX, (p2 - circle.Frame.Origin).Unit, circle.Frame.DirZ, out double param2);
 
                 if (param1 < 0.0) param1 = 2 * Math.PI + param1;
                 if (param2 < 0.0) param2 = 2 * Math.PI + param2;

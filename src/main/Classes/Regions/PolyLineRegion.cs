@@ -116,8 +116,14 @@ public sealed class PolyLineRegion : IFlatRegion
         var ret = Iterate.Over(1d, -1d).Select(sign =>
         {
             var nodes = graph.Nodes
-                .Where(node => !Accuracy.LengthIsZero((node - line.Origin).Magnitude) &&
-                                sign * Vector.SignedAngle(line.Direction, (node - line.Origin).Unit, Frame.World.DirZ) >= 0)
+                .Where(node =>
+                {
+                    if (!Vector.TryGetAngleClockWiseInDir(line.Direction, (node - line.Origin).Unit, 
+                                                          Frame.World.DirZ, out double angle)) 
+                        return false;
+                    return !Accuracy.LengthIsZero((node - line.Origin).Magnitude) &&
+                                                    sign * angle >= 0;
+                })
                 .Concat(intersections)
                 .Distinct(pntComparer)
                 .ToList();

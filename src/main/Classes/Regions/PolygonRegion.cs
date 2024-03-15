@@ -88,7 +88,13 @@ public class PolygonRegion : IFlatRegion
         var sum = 0.0d;
         for (int i = 0; i < _points.Length - 1; i++)
         {
-            sum += Vector.SignedAngle(_points[i] - point, _points[i + 1] - point, Plane.Frame.DirZ);
+            var vec1 = _points[i] - point;
+            var vec2 = _points[i + 1] - point;
+            var cross = Vector.Cross(vec1, vec2);
+            var dir = Vector.Dot(Plane.Frame.DirZ, cross) > 0 ? Plane.Frame.DirZ : Plane.Frame.DirZ.Reverse();
+            if (!Vector.TryGetAngleClockWiseInDir(vec1, vec2, dir, out double angle))
+                throw new Exception();
+            sum += angle;
         }
         return Math.Abs(sum) > Math.PI;
     }

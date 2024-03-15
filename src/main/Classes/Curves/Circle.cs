@@ -56,9 +56,10 @@ public sealed class Circle : CurveBase, ICircle
     {
         var proj = Plane.ProjectPoint(point);
         var centerToPoint = proj.Point - Frame.Origin;
-        var angle = Vector.SignedAngle(Frame.DirX, centerToPoint.Unit, Frame.DirZ);
-        if (angle < 0.0)
-            angle = 2 * Math.PI + angle;
+        if (!Vector.TryGetAngleClockWiseInDir(Frame.DirX, centerToPoint.Unit, Frame.DirZ, out double angle))
+            throw new Exception();
+        //if (angle < 0.0)
+            //angle = 2 * Math.PI + angle;
         return new CircleEvaluation(this, angle);
     }
 

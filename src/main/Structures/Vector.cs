@@ -147,21 +147,6 @@ public readonly struct Vector : IEquatable<Vector>
     public static double Angle(UnitVec vector1, UnitVec vector2) 
         => Angle(vector1.X, vector1.Y, vector1.Z, vector2.X, vector2.Y, vector2.Z);
     
-    public static double SignedAngle(double x1, double y1, double z1,
-        double x2, double y2, double z2, 
-        double axisX, double axisY, double axisZ)
-    {
-        var cross = Cross(x1, y1, z1, x2, y2, z2);
-        var angle = Angle(x1, y1, z1, x2, y2, z2);
-        if (Accuracy.LengthIsZero(cross.Magnitude))
-        {
-            var dot = Vector.Dot(x1, y1, z1, x2, y2, z2);
-            return dot > 0 ? angle : -angle;
-        }
-        var sign = Math.Sign(Dot(cross.X, cross.Y, cross.Z, axisX, axisY, axisZ));
-        return sign * angle;
-    }
-
     public static bool TryGetAngle(double x1, double y1, double z1,
                                    double x2, double y2, double z2, 
                                    out double angle)
@@ -201,28 +186,33 @@ public readonly struct Vector : IEquatable<Vector>
         return true;
     }
 
-    public static bool TryGetAngleClockWiseInDir(Vector vec1, Vector vec2, Vector dir, out double angle) 
-        => TryGetAngleClockWiseInDir(vec1.X, vec1.Y, vec1.Z, vec2.X, vec2.Y, vec2.Z, dir.X, dir.Y, dir.Z, out angle);
+    public static bool TryGetAngleClockWiseInDir(Vector vec1, Vector vec2, 
+                                                 Vector dir, out double angle) 
+        => TryGetAngleClockWiseInDir(vec1.X, vec1.Y, vec1.Z, 
+                                     vec2.X, vec2.Y, vec2.Z, 
+                                     dir.X, dir.Y, dir.Z, 
+                                     out angle);
+    
+    public static bool TryGetAngleClockWiseInDir(Vector vec1, Vector vec2, 
+                                                 UnitVec dir, out double angle) 
+        => TryGetAngleClockWiseInDir(vec1.X, vec1.Y, vec1.Z, 
+                                     vec2.X, vec2.Y, vec2.Z, 
+                                     dir.X, dir.Y, dir.Z, 
+                                     out angle);
 
-    public static double SignedAngle(Vector vector1, Vector vector2, Vector axis)
-        => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
-            vector2.X, vector2.Y, vector2.Z, 
-            axis.X, axis.Y, axis.Z);    
+    public static bool TryGetAngleClockWiseInDir(UnitVec unit1, UnitVec unit2, 
+                                                 UnitVec dir, out double angle)
+        => TryGetAngleClockWiseInDir(unit1.X, unit1.Y, unit1.Z, 
+                                     unit2.X, unit2.Y, unit2.Z, 
+                                     dir.X, dir.Y, dir.Z, 
+                                     out angle);
     
-    public static double SignedAngle(Vector vector1, Vector vector2, UnitVec axis)
-        => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
-            vector2.X, vector2.Y, vector2.Z, 
-            axis.X, axis.Y, axis.Z);    
-    
-    public static double SignedAngle(UnitVec vector1, UnitVec vector2, UnitVec axis)
-        => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
-            vector2.X, vector2.Y, vector2.Z, 
-            axis.X, axis.Y, axis.Z);    
-    
-    public static double SignedAngle(UnitVec vector1, UnitVec vector2, Vector axis)
-        => SignedAngle(vector1.X, vector1.Y, vector1.Z, 
-            vector2.X, vector2.Y, vector2.Z, 
-            axis.X, axis.Y, axis.Z);    
+    public static bool TryGetAngleClockWiseInDir(UnitVec unit1, UnitVec unit2, 
+                                                 Vector dir, out double angle)
+        => TryGetAngleClockWiseInDir(unit1.X, unit1.Y, unit1.Z, 
+                                     unit2.X, unit2.Y, unit2.Z, 
+                                     dir.X, dir.Y, dir.Z, 
+                                     out angle);
 
     public bool Equals(Vector other)
     {
