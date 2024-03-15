@@ -34,7 +34,7 @@ public readonly struct Vector : IEquatable<Vector>
     public Vector(double x, double y, double z)
     {
         (X, Y, Z) = (x, y, z);
-        Magnitude = CaclMagnitude(x, y, z);
+        Magnitude = CalcMagnitude(x, y, z);
     }
 
     public Vector(UnitVec unit)
@@ -122,14 +122,14 @@ public readonly struct Vector : IEquatable<Vector>
     //public bool IsParallel(Vector other)
     //    => Accuracy.AngleIsZero(Angle(other));
 
-    private static double CaclMagnitude(double x, double y, double z)
+    private static double CalcMagnitude(double x, double y, double z)
         => Math.Sqrt(x * x + y * y + z * z);
 
     private static double Angle(double x1, double y1, double z1,
                                 double x2, double y2, double z2)
     {
-        var firstMagnitude = CaclMagnitude(x1, y1, z1);
-        var secondMagnitude = CaclMagnitude(x2, y2, z2);
+        var firstMagnitude = CalcMagnitude(x1, y1, z1);
+        var secondMagnitude = CalcMagnitude(x2, y2, z2);
         var rawNum = Dot(x1, y1, z1, x2, y2, z2) / (firstMagnitude * secondMagnitude);
         var checkNum = rawNum.Clamp(-1, 1);
         return Math.Acos(checkNum);
@@ -151,7 +151,7 @@ public readonly struct Vector : IEquatable<Vector>
                                    double x2, double y2, double z2, 
                                    out double angle)
     {
-        if (Accuracy.IsZero(CaclMagnitude(x1, y1, z1)) || Accuracy.IsZero(CaclMagnitude(x2, y2, z2)))
+        if (Accuracy.IsZero(CalcMagnitude(x1, y1, z1)) || Accuracy.IsZero(CalcMagnitude(x2, y2, z2)))
         {
             angle = 0.0;
             return false;
@@ -213,6 +213,65 @@ public readonly struct Vector : IEquatable<Vector>
                                      unit2.X, unit2.Y, unit2.Z, 
                                      dir.X, dir.Y, dir.Z, 
                                      out angle);
+
+    public static bool TryGetSignedAngleInDir(double x1, double y1, double z1,
+                                              double x2, double y2, double z2, 
+                                              double dirX, double dirY, double dirZ, 
+                                              out double angle)
+    {
+        if (Accuracy.IsZero(CalcMagnitude(x1, y1, z1)) || 
+            Accuracy.IsZero(CalcMagnitude(x2, y2, z2)) || 
+            Accuracy.IsZero(CalcMagnitude(dirX, dirY, dirZ)))
+        {
+            angle = 0.0;
+            return false;
+        }
+        var cross = Cross(x1, y1, z1, x2, y2, z2);
+        var magnitude = cross.Magnitude;
+        var dot = Dot(cross.X, cross.Y, cross.Z, dirX, dirY, dirZ);
+        if (Accuracy.IsZero(magnitude))
+        {
+            angle = Dot(x1, y1, z1, x2, y2, z2) > 0.0 ? 0.0 : Math.PI;
+        }
+        else
+        {
+            if (Accuracy.IsZero(dot)) 
+            {
+                angle = 0.0;
+                return false;
+            }
+            angle = Math.Sign(dot) * Angle(x1, y1, z1, x2, y2, z2);
+        }
+        return true;
+    }
+
+    public static bool TryGetSignedAngleInDir(Vector vec1, Vector vec2, 
+                                              Vector dir, out double angle) 
+    => TryGetSignedAngleInDir(vec1.X, vec1.Y, vec1.Z, 
+                              vec2.X, vec2.Y, vec2.Z, 
+                              dir.X, dir.Y, dir.Z, 
+                              out angle);
+
+    public static bool TryGetSignedAngleInDir(Vector vec1, Vector vec2, 
+                                              UnitVec dir, out double angle) 
+        => TryGetSignedAngleInDir(vec1.X, vec1.Y, vec1.Z, 
+                                  vec2.X, vec2.Y, vec2.Z, 
+                                  dir.X, dir.Y, dir.Z, 
+                                  out angle);
+
+    public static bool TryGetSignedAngleInDir(UnitVec unit1, UnitVec unit2, 
+                                              UnitVec dir, out double angle)
+        => TryGetSignedAngleInDir(unit1.X, unit1.Y, unit1.Z, 
+                                  unit2.X, unit2.Y, unit2.Z, 
+                                  dir.X, dir.Y, dir.Z, 
+                                  out angle);
+
+    public static bool TryGetSignedAngleInDir(UnitVec unit1, UnitVec unit2, 
+                                              Vector dir, out double angle)
+        => TryGetSignedAngleInDir(unit1.X, unit1.Y, unit1.Z, 
+                                  unit2.X, unit2.Y, unit2.Z, 
+                                  dir.X, dir.Y, dir.Z, 
+                                  out angle);
 
     public bool Equals(Vector other)
     {
