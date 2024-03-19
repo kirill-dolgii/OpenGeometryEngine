@@ -80,6 +80,31 @@ public sealed class PolyLineRegion : IFlatRegion
         Length = _curves.Sum(curve => curve.Length) + InnerRegions.Sum(inner => inner.Length);
     }
 
+    private ICollection<IBoundedCurve> IntersectCurves(ICollection<IBoundedCurve> curves)
+    {
+        Argument.IsNotNull(nameof(curves), curves);
+        var intersections = _curves.ToDictionary(myCurve => myCurve, 
+            myCurve => curves.SelectMany(curve => myCurve.IntersectCurve(curve)).ToArray());
+        
+        if (intersections.Values.Sum(evals => evals.Length) % 2 != 0) 
+        {
+            throw new Exception("Region can't be splitted"); //TODO: typed exception
+        }
+
+        foreach (var kv in intersections)
+        {
+            if (kv.Value.Length == 0) continue;
+            // split the same curve by several intersection points
+        }
+    }
+
+    public ICollection<PolyLineRegion> Split(ICollection<IBoundedCurve> curves)
+    {
+        // check
+        // get intersections
+        // recreate regions
+    }
+
     public Pair<ICollection<PolyLineRegion>> Split(Line line)
     {
         Argument.IsNotNull(nameof(line), line);
