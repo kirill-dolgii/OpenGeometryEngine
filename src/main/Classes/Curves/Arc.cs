@@ -138,53 +138,24 @@ public class Arc : IBoundedCurve
     public ICollection<IBoundedCurve> Split(ICurve curve)
     {
         Argument.IsNotNull(nameof(curve), curve);
-        var arcParams = new List<(double, double)>();
-        switch (curve)
-        {
-            case Line:
-            {
-                var intersections = IntersectCurve(curve);
-                switch (intersections.Count)
-                {
-                    case 0: return Array.Empty<IBoundedCurve>();
-                    case 1:
-                    {
-                        arcParams.Add(new (Interval.Start, intersections.Single().FirstEvaluation.Param));
-                        arcParams.Add(new (intersections.Single().FirstEvaluation.Param, Interval.End));
-                        break;
-                    }
-                    case 2:
-                    {
-                        if (!Accuracy.AreEqual(2 * Math.PI, Interval.Span))
-                        {
-                            arcParams = Iterate.Over(Interval.Start, Interval.End,
-                                                     intersections.ElementAt(0).FirstEvaluation.Param,
-                                                     intersections.ElementAt(1).FirstEvaluation.Param)
-                                               .OrderBy(param => param).Pairs(closed:false).ToList();
-                        }
-                        else
-                        {
-                            var span = intersections.ElementAt(1).FirstEvaluation.Param -
-                                       intersections.ElementAt(0).FirstEvaluation.Param;
-                            arcParams = Enumerable.Range(0, 3).Select(i => i * span)
-                                .Pairs(closed: false).ToList();
-                        }
-                        break;
-                    }
-                }
-                break;
-            }
-            default: throw new NotImplementedException();
-        }
+		double[] arcParams = IntersectCurve(curve).Select(ip => ip.FirstEvaluation.Param).ToArray();
+        return Split(arcParams);
+    }
 
-        // if are equal => intersection is on Interval's bound
-        var newArcParams = arcParams
-            .Where(tpl => !Accuracy.AreEqual(tpl.Item1, tpl.Item2) &&
-                            !(Accuracy.AreEqual(tpl.Item1, Interval.Start) && 
-                              Accuracy.AreEqual(tpl.Item2, Interval.End))).ToArray();
-        return newArcParams
-            .Select(tpl => new Arc(Circle.Frame, Circle.Radius, new Interval(tpl.Item1, tpl.Item2)))
-            .ToArray();
+    public ICollection<IBoundedCurve> Split(ICollection<double> parameters)
+    {
+        Argument.IsNotNull(nameof(parameters), parameters);
+        var bounds = Iterate.Over(Interval.Start, Interval.End);
+        var nonBoundedParams = parameters.Except(bounds);
+        if (!nonBoundedParams.Any()) return Array.Empty<IBoundedCurve>();
+        var suitableParams = nonBoundedParams
+            .Where(param => Accuracy.WithinLengthInterval(Interval, param))
+            .Concat(bounds)
+            .OrderBy(param => param).ToArray();
+        //bool isClosed = Interval.Span == 2 * Math.PI;
+        return suitableParams.Pairs(closed: false)
+            .Select(paramPair => new Arc(Circle,
+            new Interval(paramPair.First, paramPair.Second))).ToArray();
     }
 
     public Point StartPoint { get; }

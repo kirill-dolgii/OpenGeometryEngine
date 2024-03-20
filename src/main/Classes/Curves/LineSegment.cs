@@ -105,29 +105,23 @@ public class LineSegment : IBoundedCurve
     public ICollection<IBoundedCurve> Split(ICurve curve)
     {
         Argument.IsNotNull(nameof(curve), curve);
-        var arcParams = new List<(double, double)>();
-        switch (curve)
-        {
-            case Line line:
-            {
-                var intersections = IntersectCurve(line);
-                if (!intersections.Any()) return Array.Empty<IBoundedCurve>();
-                arcParams = Iterate.Over(Interval.Start, intersections.Single().FirstEvaluation.Param, Interval.End)
-                    .OrderBy(param => param)
-                    .Pairs(closed:false)
-                    .ToList();
-                break;
-            }
-            default: throw new NotImplementedException();
-        }
-        // if are equal => intersection is on Interval's bound
-        var newArcParams = arcParams
-            .Where(tpl => !Accuracy.AreEqual(tpl.Item1, tpl.Item2) &&
-                          !(Accuracy.AreEqual(tpl.Item1, Interval.Start) &&
-                            Accuracy.AreEqual(tpl.Item2, Interval.End))).ToArray();
-        return newArcParams
-            .Select(tpl => new LineSegment(Line, new Interval(tpl.Item1, tpl.Item2)))
-            .ToArray();
+		double[] arcParams = IntersectCurve(curve).Select(ip => ip.FirstEvaluation.Param).ToArray();
+        return Split(arcParams);
+    }
+
+    public ICollection<IBoundedCurve> Split(ICollection<double> parameters)
+    {
+        Argument.IsNotNull(nameof(parameters), parameters);
+        var bounds = Iterate.Over(Interval.Start, Interval.End).ToArray();
+        var nonBoundedParams = parameters.Except(bounds).ToArray();
+		if (!nonBoundedParams.Any()) return Array.Empty<LineSegment>();
+        var suitableParams = nonBoundedParams
+			.Where(param => Accuracy.WithinLengthInterval(Interval, param))
+            .Concat(bounds)
+            .OrderBy(param => param).ToArray();
+        return suitableParams.Pairs(closed: false)
+            .Select(paramPair => new LineSegment(Line, 
+                    new Interval(paramPair.First, paramPair.Second))).ToArray();
     }
 
     public ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options)

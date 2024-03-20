@@ -1,5 +1,4 @@
-﻿using NUnit.Framework.Constraints;
-using OpenGeometryEngine;
+﻿using OpenGeometryEngine;
 
 namespace OpenGeometryEngineTests.CurveTests.LineSegmentTests;
 
@@ -44,7 +43,6 @@ public class LineSegmentTests
     {
         var lineSegment = new LineSegment(Point.Origin, new Point(0.01, 0.0, 0.0));
         var splitted = lineSegment.Split(new Line(Point.Origin, Frame.World.DirX));
-
         Assert.That(splitted, Has.Count.EqualTo(0));
     }
 }

@@ -28,5 +28,7 @@ public interface IBoundedCurve : IBounded, IHasCurve
 
     ICollection<IBoundedCurve> Split(ICurve curve);
 
+    ICollection<IBoundedCurve> Split(ICollection<double> parameters);
+
     ICollection<ICurveEvaluation> GetPolyline(PolylineOptions options);
 }
