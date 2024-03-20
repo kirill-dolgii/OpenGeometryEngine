@@ -41,6 +41,8 @@ public class Arc : IBoundedCurve
         EndPoint = Evaluate(angle).Point;
     }
     
+    public Arc(Circle circle, Interval interval) : this(circle.Frame, circle.Radius, interval) {}
+    
     public Arc(Arc other)
     {
         Circle = other.Circle;

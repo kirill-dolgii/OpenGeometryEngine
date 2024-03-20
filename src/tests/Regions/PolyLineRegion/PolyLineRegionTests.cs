@@ -73,6 +73,33 @@ public class PolyLineRegionTests
     }
 
     [Test]
+    public void test1()
+    {
+        var p0 = Point.Origin;
+        var p1 = new Point(0.01, 0.0, 0.0);
+        var p2 = new Point(0.01, 0.01, 0.0);
+        var p3 = new Point(0.0, 0.01, 0.0);
+
+        var curves = new IBoundedCurve[]
+        {
+            new LineSegment(p0, p1),
+            new LineSegment(p1, p2),
+            new LineSegment(p2, p3),
+            new LineSegment(p0, p3),
+        };
+
+        var splitLines = new IBoundedCurve[]
+        {
+            new LineSegment(new Point(0.5, 0.5, 0.0), p2),
+            new LineSegment(new Point(0.5, 0.5, 0.0), p3),
+        };
+
+        var region = OpenGeometryEngine.Regions.PolyLineRegion.CreatePolygons(curves, Plane.PlaneXY).Single();
+        var splitCurves = region.GetIntersectionCurves(splitLines, out _);
+    }
+
+
+    [Test]
     public void POLYLINE_REGION_SPLIT()
     {
         var p0 = Point.Origin;

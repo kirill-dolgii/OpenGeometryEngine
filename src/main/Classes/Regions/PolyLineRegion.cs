@@ -80,30 +80,57 @@ public sealed class PolyLineRegion : IFlatRegion
         Length = _curves.Sum(curve => curve.Length) + InnerRegions.Sum(inner => inner.Length);
     }
 
-    private ICollection<IBoundedCurve> IntersectCurves(ICollection<IBoundedCurve> curves)
+    public ICollection<IBoundedCurve> GetIntersectionCurves(ICollection<IBoundedCurve> curves, 
+                                                            out Dictionary<IBoundedCurve, ICollection<IBoundedCurve>> splitted)
     {
         Argument.IsNotNull(nameof(curves), curves);
-        var intersections = _curves.ToDictionary(myCurve => myCurve, 
-            myCurve => curves.SelectMany(curve => myCurve.IntersectCurve(curve)).ToArray());
+        var intersections = _curves.SelectMany(polygonCurve => 
+            curves.SelectMany(curve => polygonCurve.IntersectCurve(curve).Select(ip => new { PolygonCurve = polygonCurve, SplitCurve = curve, Intersection = ip, Inner = false}))).ToArray();
+        var innerIntersections = InnerRegions.SelectMany(region => 
+            ((PolyLineRegion)region)._curves.SelectMany(polygonCurve => 
+                curves.SelectMany(curve => polygonCurve.IntersectCurve(curve).Select(ip => new { PolygonCurve = polygonCurve, SplitCurve = curve, Intersection = ip, Inner = true})))).ToArray();
         
-        if (intersections.Values.Sum(evals => evals.Length) % 2 != 0) 
+        // check if suitable split curves intersections
+        if (intersections.Length % 2 != 0 || innerIntersections.Length % 2 != 0)
         {
             throw new Exception("Region can't be splitted"); //TODO: typed exception
         }
 
-        foreach (var kv in intersections)
-        {
-            if (kv.Value.Length == 0) continue;
-            // split the same curve by several intersection points
-        }
+        splitted = intersections.Concat(innerIntersections)
+                        .GroupBy(intersection => intersection.PolygonCurve)
+                        .ToDictionary(group => group.Key, 
+                                      group => Split(group.Key, group.Select(inters => inters.Intersection.FirstEvaluation).ToArray()));
+
+        var splitSegments = intersections.Concat(innerIntersections).GroupBy(intersection => intersection.SplitCurve)
+                                         .SelectMany(group => 
+                                                {
+                                                    var isClosed = group.Key.IsGeometry<Circle>() && Accuracy.EqualAngles(((Arc)group.Key).Interval.Span, 2 * Math.PI);
+                                                    var evalPairs = group.OrderBy(eval => eval.Intersection.SecondEvaluation.Param).Pairs(isClosed).ToList();
+                                                    return Split(group.Key, group.Select(inters => inters.Intersection.FirstEvaluation).ToArray()).Where(curve => _polygon.ContainsPoint(curve.MidPoint));
+                                                }).ToArray();
+        return splitSegments;
     }
 
-    public ICollection<PolyLineRegion> Split(ICollection<IBoundedCurve> curves)
+    private ICollection<IBoundedCurve> Split(IBoundedCurve curve, ICollection<ICurveEvaluation> intersections)
     {
-        // check
-        // get intersections
-        // recreate regions
+        var isArc = curve.IsGeometry<Circle>();
+        if (isArc && intersections.Count < 2) return new [] { curve };
+        var isClosed = isArc && Accuracy.AreEqual(curve.Interval.Span, 2 * Math.PI);
+        var paramPairs = intersections.OrderBy(eval => eval.Param).Pairs(isClosed);
+        return curve.Curve switch
+        {
+            Circle circle => paramPairs.Select(paramPair => new Arc(circle, new Interval(paramPair.First.Param, paramPair.Second.Param))).ToArray(),
+            Line line => paramPairs.Select(paramPair => new LineSegment(line, new Interval(paramPair.First.Param, paramPair.Second.Param))).ToArray(),
+            _ => throw new NotImplementedException(),
+        };
     }
+
+    // public ICollection<PolyLineRegion> Split(ICollection<IBoundedCurve> curves)
+    // {
+    //     // check
+    //     // get intersections
+    //     // recreate regions
+    // }
 
     public Pair<ICollection<PolyLineRegion>> Split(Line line)
     {
@@ -143,11 +170,12 @@ public sealed class PolyLineRegion : IFlatRegion
             var nodes = graph.Nodes
                 .Where(node =>
                 {
-                    if (!Vector.TryGetAngleClockWiseInDir(line.Direction, (node - line.Origin).Unit, 
-                                                          Frame.World.DirZ, out double angle)) 
+                    if (pntComparer.Equals(node, line.Origin)) return true;
+                    if (!Vector.TryGetSignedAngleInDir(line.Direction, (node - line.Origin).Unit, 
+                                                       Frame.World.DirZ, out double angle)) 
                         return false;
                     return !Accuracy.LengthIsZero((node - line.Origin).Magnitude) &&
-                                                    sign * angle >= 0;
+                                                   sign * angle >= 0;
                 })
                 .Concat(intersections)
                 .Distinct(pntComparer)
