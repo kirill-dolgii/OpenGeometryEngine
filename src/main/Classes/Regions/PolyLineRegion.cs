@@ -114,7 +114,7 @@ public sealed class PolyLineRegion : IFlatRegion
 		var splitSegments = intersections.Concat(innerIntersections).GroupBy(intersection => intersection.SplitCurve)
 										 .SelectMany(group =>
 										 {
-                                             var splitted = group.Key.Split(group.Select(inters => inters.Intersection.FirstEvaluation.Param).ToArray());
+                                             var splitted = group.Key.Split(group.Select(inters => inters.Intersection.SecondEvaluation.Param).ToArray());
 											 return splitted.Where(curve => _polygon.ContainsPoint(curve.MidPoint));
 										 }).ToArray();
 		return splitSegments;

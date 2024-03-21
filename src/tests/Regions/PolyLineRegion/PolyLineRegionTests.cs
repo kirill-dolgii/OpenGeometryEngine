@@ -73,7 +73,7 @@ public class PolyLineRegionTests
     }
 
 	[Test]
-	public void test1()
+	public void POLYLINE_REGION_GET_iNTERSECTION_CURVES()
 	{
 		var p0 = Point.Origin;
 		var p1 = new Point(0.01, 0.0, 0.0);
@@ -99,7 +99,47 @@ public class PolyLineRegionTests
 		};
 
 		var region = OpenGeometryEngine.Regions.PolyLineRegion.CreatePolygons(curves, Plane.PlaneXY).Single();
-		var splitCurves = region.GetIntersectionCurves(splitLines, out _);
+		var splitCurves = region.GetIntersectionCurves(splitLines, out var splitted);
+
+        Assert.That(splitCurves, Has.Count.EqualTo(2));
+        
+        Assert.That(splitted, Has.Count.EqualTo(2));
+        Assert.That(splitted.ElementAt(0).Value, Has.Count.EqualTo(2));
+        Assert.That(splitted.ElementAt(1).Value, Has.Count.EqualTo(2));
+
+        Assert.Multiple(() =>
+        {
+            var kv = splitted.ElementAt(0);
+            Assert.That(kv.Value.Sum(curve => curve.Length), Is.EqualTo(kv.Key.Length));
+            Assert.That(kv.Value.ElementAt(0).StartPoint, Is.EqualTo(Point.Origin));
+            Assert.That(kv.Value.ElementAt(0).EndPoint, Is.EqualTo(new Point(0.0, 0.0075, 0.0)));
+            Assert.That(kv.Value.ElementAt(1).StartPoint, Is.EqualTo(new Point(0.0, 0.0075, 0.0)));
+            Assert.That(kv.Value.ElementAt(1).EndPoint, Is.EqualTo(p3));
+        });
+
+        Assert.Multiple(() =>
+        {
+            var kv = splitted.ElementAt(1);
+            Assert.That(kv.Value.Sum(curve => curve.Length), Is.EqualTo(kv.Key.Length));
+            Assert.That(kv.Value.ElementAt(0).StartPoint, Is.EqualTo(p2));
+            Assert.That(kv.Value.ElementAt(0).EndPoint, Is.EqualTo(new Point(0.01, 0.0075, 0.0)));
+            Assert.That(kv.Value.ElementAt(1).StartPoint, Is.EqualTo(new Point(0.01, 0.0075, 0.0)));
+            Assert.That(kv.Value.ElementAt(1).EndPoint, Is.EqualTo(p1));
+        });
+        
+        Assert.Multiple(() =>
+        {
+            var curve = splitCurves.ElementAt(0);
+            Assert.That(curve.StartPoint, Is.EqualTo(center));
+            Assert.That(curve.EndPoint, Is.EqualTo(new Point(0.0, 0.0075, 0.0)));
+        });
+        
+        Assert.Multiple(() =>
+        {
+            var curve = splitCurves.ElementAt(1);
+            Assert.That(curve.StartPoint, Is.EqualTo(center));
+            Assert.That(curve.EndPoint, Is.EqualTo(new Point(0.01, 0.0075, 0.0)));
+        });
 	}
 
 
