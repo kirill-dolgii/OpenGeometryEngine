@@ -14,7 +14,7 @@ public readonly struct LineEvaluation : ICurveEvaluation
     public Line Line { get; }
     public double Param { get; }
     public Point Point { get; }
-    public UnitVec Tangent => throw new NotImplementedException();
+    public UnitVec Tangent => Line.Direction;
     public double Curvature => 0.0;
     public Vector Derivative => throw new NotImplementedException();
 }
