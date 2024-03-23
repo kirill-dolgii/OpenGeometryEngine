@@ -90,6 +90,7 @@ public class PolyLineRegionTests
 			new LineSegment(p1, p2),
 			new LineSegment(p2, p3),
 			new LineSegment(p0, p3),
+			new LineSegment(p0, p2),
 		};
 
 		var splitLines = new IBoundedCurve[]
@@ -97,6 +98,9 @@ public class PolyLineRegionTests
 			new LineSegment(center, ip1),
 			new LineSegment(center, ip2),
 		};
+
+        var planarRegion = new PlanarCurveGraph(curves, Plane.PlaneXY);
+        var ordered = planarRegion.WalkCurves(p3);
 
 		var region = OpenGeometryEngine.Regions.PolyLineRegion.CreatePolygons(curves, Plane.PlaneXY).Single();
 		var splitCurves = region.GetIntersectionCurves(splitLines, out var splitted);
