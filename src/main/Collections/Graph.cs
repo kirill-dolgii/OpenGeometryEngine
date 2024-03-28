@@ -72,7 +72,22 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         }
     }
 
-    public static Graph<TNode, TEdge> Copy(Graph<TNode, TEdge> other, ICollection<TNode> nodes)
+    public Graph(Graph<TNode, TEdge> other)
+    {
+        Argument.IsNotNull(nameof(other), other);
+        var otherToThisNodes = other._map.ToDictionary(kv => kv.Value, kv => new Node(kv.Value.Item));
+		_map = other._map.Values.ToDictionary(node => node.Item, 
+                                node => otherToThisNodes[node], NodeEqualityComparer);
+        _adjacent = other._adjacent.ToDictionary(kv => otherToThisNodes[kv.Key], 
+            kv => new HashSet<Node>(other._adjacent[kv.Key].Select(node => otherToThisNodes[node])));
+        _edges = other._edges.ToDictionary(kv => (otherToThisNodes[kv.Key.x], otherToThisNodes[kv.Key.y]),
+                                           kv => kv.Value);
+		_edgesCount = Directed ? _edges.Count / 2 : _edges.Count;
+        NodeEqualityComparer = other.NodeEqualityComparer;
+        EdgeEqualityComparer = other.EdgeEqualityComparer;
+	}
+
+	public static Graph<TNode, TEdge> Copy(Graph<TNode, TEdge> other, ICollection<TNode> nodes)
     {
         Argument.IsNotNull(nameof(other), other);
         Argument.IsNotNull(nameof(nodes), nodes);

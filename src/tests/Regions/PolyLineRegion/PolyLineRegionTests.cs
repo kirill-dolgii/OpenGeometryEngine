@@ -1,5 +1,6 @@
 ﻿using OpenGeometryEngine;
 using OpenGeometryEngine.Exceptions;
+using OpenGeometryEngine.Misc.Solvers;
 using System.ComponentModel.DataAnnotations;
 
 namespace OpenGeometryEngineTests.Regions.PolyLineRegion;
@@ -100,6 +101,9 @@ public class PolyLineRegionTests
 		};
 
         var planarRegion = new PlanarCurveGraph(curves, Plane.PlaneXY);
+        var solver = new PlanarMinCycleSolver(planarRegion);
+        solver.Solve();
+
         var ordered = planarRegion.WalkCurves(p3);
 
 		var region = OpenGeometryEngine.Regions.PolyLineRegion.CreatePolygons(curves, Plane.PlaneXY).Single();
@@ -146,6 +150,32 @@ public class PolyLineRegionTests
         });
 	}
 
+    [Test]
+    public void TEST_LOOPS()
+    {
+		var p0 = Point.Origin;
+		var p1 = new Point(0.01, 0.0, 0.0);
+		var p2 = new Point(0.01, 0.01, 0.0);
+		var p3 = new Point(0.0, 0.01, 0.0);
+
+		var center = new Point(0.005, 0.005, 0.0);
+		var ip1 = new Point(0.015, 0.01, 0.0);
+		var ip2 = new Point(-0.005, 0.01, 0.0);
+
+		var curves = new IBoundedCurve[]
+		{
+			new LineSegment(p0, p1),
+			new LineSegment(p1, p2),
+			new LineSegment(p2, p3),
+			new LineSegment(p0, p3),
+			new LineSegment(p0, p2),
+		};
+
+        var graph = new PlanarCurveGraph(curves, Plane.PlaneXY);
+
+        var solver = new PlanarMinCycleSolver(graph);
+        var result = solver.Solve();
+	}
 
 	[Test]
     public void POLYLINE_REGION_SPLIT()

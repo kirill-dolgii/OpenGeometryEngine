@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace OpenGeometryEngine;
 
-public class QuadraticEquationSolver : SolverBase<Pair<Complex>>
+public class QuadraticEquationSolver : ISolver<Pair<Complex>>
 {
     public double a { get; }
 
@@ -12,22 +12,29 @@ public class QuadraticEquationSolver : SolverBase<Pair<Complex>>
 
     public double c { get; }
 
-    public QuadraticEquationSolver(double a, double b, double c) 
-        => (this.a, this.b, this.c, Solved, Result) = (a, b, c, false, null);
+    private bool _solved = false;
+    private Pair<Complex>? _result;
 
-	public override Pair<Complex> Solve()
+	public Pair<Complex>? Result => throw new NotImplementedException();
+
+	public bool Solved => throw new NotImplementedException();
+
+	public QuadraticEquationSolver(double a, double b, double c) 
+        => (this.a, this.b, this.c, _result) = (a, b, c, null);
+
+	public Pair<Complex> Solve()
 	{
         if (Solved && Result != null) return Result;
 
 		if (b == 0d)
 		{
 			var t = Complex.Sqrt(new Complex(-c / a, 0d));
-			Result = new (t, -t);
+			_result = new (t, -t);
 		}
 
 		var q = -0.5 * (b + Math.Sign(b) * Complex.Sqrt(new Complex(b * b - 4 * a * c, 0d)));
 
-        Result = new(q / a, c / q);
+		_result = new(q / a, c / q);
 
 		return Result;
 	}

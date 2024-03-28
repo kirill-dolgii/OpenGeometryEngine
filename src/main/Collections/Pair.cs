@@ -28,4 +28,6 @@ public class Pair<T> : IEnumerable<T>
         yield return First;
         yield return Second;
     }
+
+    public void UnPack(out T first, out T second) => (first, second) = (First, Second);
 }
