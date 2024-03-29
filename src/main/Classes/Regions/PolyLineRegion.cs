@@ -6,6 +6,7 @@ using System;
 using System.Collections.ObjectModel;
 using OpenGeometryEngine.Extensions;
 using OpenGeometryEngine.Collections;
+using OpenGeometryEngine.Misc.Solvers;
 
 namespace OpenGeometryEngine.Regions;
 
@@ -80,8 +81,30 @@ public sealed class PolyLineRegion : IFlatRegion
         Length = _curves.Sum(curve => curve.Length) + InnerRegions.Sum(inner => inner.Length);
     }
 
+    public void Split(ICollection<IBoundedCurve> splitCurves)
+    {
+        Argument.IsNotNull(nameof(splitCurves), splitCurves);
+        var intersectionCurves = GetIntersectionCurves(splitCurves, out var map);
+        foreach (var kv in map)
+        {
+            _graph.RemoveEdge(kv.Key.StartPoint, kv.Key.EndPoint);
+            foreach (var splitted in kv.Value)
+            {
+                _graph.AddEdge(splitted.StartPoint, splitted.EndPoint, splitted);
+            }
+        }
+        int i = 0;
+        foreach (var curve in intersectionCurves)
+        {
+            if (i++ % 2 != 0) continue;
+            _graph.AddEdge(curve.StartPoint, curve.EndPoint, curve);
+        }
+        var solver = new PlanarMinCycleSolver(new PlanarCurveGraph(_graph.Edges, Plane));
+        var loops = solver.Solve();
+    }
+
 	public ICollection<IBoundedCurve> GetIntersectionCurves(ICollection<IBoundedCurve> curves,
-																out Dictionary<IBoundedCurve, ICollection<IBoundedCurve>> splitted)
+															out Dictionary<IBoundedCurve, ICollection<IBoundedCurve>> splitted)
 	{
 		Argument.IsNotNull(nameof(curves), curves);
 
@@ -119,13 +142,6 @@ public sealed class PolyLineRegion : IFlatRegion
 										 }).ToArray();
 		return splitSegments;
 	}
-
-    // public ICollection<PolyLineRegion> Split(ICollection<IBoundedCurve> curves)
-    // {
-    //     // check
-    //     // get intersections
-    //     // recreate regions
-    // }
 
     public Pair<ICollection<PolyLineRegion>> Split(Line line)
     {

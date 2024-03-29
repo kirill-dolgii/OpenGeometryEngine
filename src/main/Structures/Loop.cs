@@ -11,11 +11,10 @@ public struct Loop : ICollection<DirectedEdge>
 
 	public ICollection<Point> Vertices { get; }
 
-	internal Loop(ICollection<DirectedEdge> edges)
+	internal Loop(ICollection<DirectedEdge> edges, ICollection<Point> vertices)
 	{
-		_edges = ([.. edges]);
-		Vertices = _edges.SelectMany(de => Iterate.Over(de.X, de.Y)).
-						  Distinct(new PointEqualityComparer()).ToArray();
+		_edges = edges.ToArray();
+		Vertices = vertices;
 	}
 
 	public int Count => ((ICollection<DirectedEdge>)_edges).Count;
