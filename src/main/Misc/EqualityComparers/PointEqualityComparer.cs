@@ -4,6 +4,8 @@ namespace OpenGeometryEngine;
 
 public class PointEqualityComparer : IEqualityComparer<Point>
 {
+    public static PointEqualityComparer Default = new PointEqualityComparer();
+
     public bool Equals(Point p1, Point p2)
     {
         return Accuracy.EqualLengths(p1.X, p2.X) &&

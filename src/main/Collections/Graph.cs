@@ -193,6 +193,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         foreach (var kv in adjacentEdges)
                 RemoveEdge(kv.Key.x.Item, kv.Key.y.Item);
         _adjacent.Remove(_map[node]);
+        _map.Remove(node);
         return true;
     }
 

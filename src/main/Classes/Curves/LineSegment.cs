@@ -47,7 +47,12 @@ public class LineSegment : IBoundedCurve
 
     public bool IsGeometry<TGeometry>() where TGeometry : class, IGeometry => Line is TGeometry;
 
-    public bool ContainsPoint(Point point) => ProjectPoint(point).Point == point;
+    public bool ContainsPoint(Point point) 
+    {
+        var eval = ProjectPoint(point);
+        if (!Accuracy.LengthIsZero((eval.Point - point).Magnitude)) return false;
+        return Accuracy.WithinLengthInterval(Interval, eval.Param);
+    }
 
     public ICurveEvaluation ProjectPoint(Point point)
     {
@@ -75,15 +80,13 @@ public class LineSegment : IBoundedCurve
     public ICollection<IntersectionPoint<ICurveEvaluation, ICurveEvaluation>> IntersectCurve(ICurve other)
     {
         Argument.IsNotNull(nameof(other), other);
-        switch (other.Geometry)
+        var inters = other.Geometry switch
         {
-            case Line line:
-            {
-                var inters = Line.IntersectCurve(line);
-                return inters.Where(ip => Accuracy.WithinLengthInterval(Interval, ip.FirstEvaluation.Param)).ToArray();
-            }
-            default: throw new NotImplementedException();
-        }
+            Line line => Line.IntersectCurve(line),
+            Circle circle => Line.IntersectCurve(circle),
+            _ => throw new NotImplementedException()
+        };
+        return inters.Where(ip => Accuracy.WithinLengthInterval(Interval, ip.FirstEvaluation.Param)).ToArray();
     }
 
     public Point StartPoint { get; }

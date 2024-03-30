@@ -2,25 +2,29 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 
 namespace OpenGeometryEngine.Misc.Solvers;
 
 internal sealed class PlanarMinCycleSolver : Graph<Point, IBoundedCurve>, ISolver<ICollection<Loop>>
 {
 	private ICollection<Loop> _loops = new LinkedList<Loop>();
-	private bool solved = false;
+	private bool _solved = false;
 	private Dictionary<Node, PlaneEvaluation> _projections;
 
 	public Plane Plane { get; }
 
-	public ICollection<Loop>? Result => throw new NotImplementedException();
+	public ICollection<Loop>? Result => _loops;
 
-	public bool Solved => throw new NotImplementedException();
+	public bool Solved => _solved;
 
-	public PlanarMinCycleSolver(PlanarCurveGraph graph) : base(graph)
+	public PlanarMinCycleSolver(ICollection<IBoundedCurve> curves, Plane plane) : base(false)
 	{
-		Plane = graph.Plane;
+		//TODO: check if any of curves is not contained by the plane => exception
+		foreach (var curve in curves)
+		{
+			AddEdge(curve.StartPoint, curve.EndPoint, curve);
+		}
+		Plane = plane;
 		_projections = _map.Values.ToDictionary(node => node, node => (PlaneEvaluation)Plane.ProjectPoint(node.Item));
 	}
 
@@ -43,7 +47,7 @@ internal sealed class PlanarMinCycleSolver : Graph<Point, IBoundedCurve>, ISolve
 			return (end.Item - start.Item).Unit;
 		var startProj = curve.ProjectPoint(start.Item);
 		var endProj = curve.ProjectPoint(end.Item);
-		return startProj.Param > endProj.Param ? startProj.Tangent : startProj.Tangent.Reverse();
+		return startProj.Param > endProj.Param ? startProj.Tangent.Reverse() : startProj.Tangent;
 	}
 
 	private (Node x, Node y) GetMostEdge(Node? prev, Node curr, bool isClockWise)
@@ -86,27 +90,6 @@ internal sealed class PlanarMinCycleSolver : Graph<Point, IBoundedCurve>, ISolve
 				vNext = vAdj;
 				rDNext = rDAdj; 
 			}
-
-			//double signDot0 = GetSignDot(rDCurr, rDAdj);
-			//double signDot1 = GetSignDot(rDNext, rDAdj);
-			//if (vCurrIsConvex)
-			//{
-			//	if (isClockWise ? signDot0 > 0 || signDot1 > 0 : signDot0 < 0 && signDot1 < 0)
-			//	{
-			//		vNext = vAdj;
-			//		rDNext = rDAdj;
-			//		vCurrIsConvex = GetSignDot(rDNext, rDCurr) <= 0;
-			//	}
-			//}
-			//else
-			//{
-			//	if (isClockWise ? signDot0 > 0 && signDot1 > 0 : signDot0 < 0 || signDot1 < 0)
-			//	{
-			//		vNext = vAdj;
-			//		rDNext = rDAdj;
-			//		vCurrIsConvex = GetSignDot(rDNext, rDCurr) < 0;
-			//	}
-			//}
 		}
 		return (curr, vNext!);
 	}
@@ -157,32 +140,11 @@ internal sealed class PlanarMinCycleSolver : Graph<Point, IBoundedCurve>, ISolve
 		{
 			RemoveNode(node.Item);
 		}
-		//var edgesToDelete = new List<(Node x, Node y)>() { (closedWalk[0], closedWalk[1]) };
-
-		//for (int i = 1; i < closedWalk.Count - 1; ++i)
-		//{
-		//	if (_adjacent[closedWalk[i]].Count < 2)
-		//	{
-		//		edgesToDelete.Add((closedWalk[i], closedWalk[i + 1]));
-		//		continue;
-		//	}
-		//	break;
-		//}
-		//for (int i = closedWalk.Count - 1; i > 2; i--)
-		//{
-		//	if (_adjacent[closedWalk[i - 1]].Count < 2)
-		//	{
-		//		edgesToDelete.Add((closedWalk[i - 1], closedWalk[i]));
-		//		continue;
-		//	}
-		//	break;
-		//}
-		//foreach (var edge in edgesToDelete) RemoveEdgeImpl(edge.x, edge.y);
-
     }
 
 	public ICollection<Loop> Solve()
 	{
+		if (_solved) return _loops;
 		var loops = new List<Loop>();
 		while (NodesCount > 0)
 		{
@@ -192,6 +154,8 @@ internal sealed class PlanarMinCycleSolver : Graph<Point, IBoundedCurve>, ISolve
 			CleanUp(closedWalk);
 			loops.Add(loop);
 		}
+		_loops = loops;
+		_solved = true;
 		return loops;
 	}
 }

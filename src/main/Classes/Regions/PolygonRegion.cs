@@ -11,6 +11,32 @@ public class PolygonRegion : IFlatRegion
     private readonly LineSegment[] _lines;
     private readonly Point[] _points;
 
+    internal PolygonRegion(Loop loop, Plane plane, PolylineOptions? options)
+    {
+        if (options == null) options = PolylineOptions.Default;
+        _points = loop.SelectMany(edge =>
+        {
+            var points = edge.Curve.GetPolyline(options.Value).Select(eval => eval.Point).ToList();
+            if (!PointEqualityComparer.Default.Equals(edge.X, edge.Curve.StartPoint)) points.Reverse();
+            return points;
+        }).Distinct(PointEqualityComparer.Default).ToArray();
+
+        _lines = new LineSegment[_points.Length];
+        for (int i = 0; i < _points.Length; i++)
+        {
+            if (!plane.ContainsPoint(_points[i])) throw new PointOffRegionPlaneException();
+            int j = (i + 1) % _points.Length;
+            _lines[i] = new LineSegment(_points[i], _points[j]);
+            Perimeter += _lines[i].Length;
+        }
+
+        if (SelfIntersects(_lines)) throw new SelfIntersectingRegionException();
+
+        Plane = plane;
+        Area = ComputeArea(_points, Plane);
+        IsConvex = CheckIfConvex();
+    }
+
     public PolygonRegion(Point[] points, Plane plane)
     {
         Argument.IsNotNull(nameof(points), points);
@@ -30,7 +56,7 @@ public class PolygonRegion : IFlatRegion
         if (SelfIntersects(_lines)) throw new SelfIntersectingRegionException();
 
         Plane = plane;
-        Length = length;
+        Perimeter = length;
         _points = points;
         Area = ComputeArea(points, plane);
         IsConvex = CheckIfConvex();
@@ -138,7 +164,7 @@ public class PolygonRegion : IFlatRegion
         return GetEnumerator();
     }
 
-    public double Length { get; }
+    public double Perimeter { get; }
 
     public double Area { get; }
 
@@ -149,6 +175,8 @@ public class PolygonRegion : IFlatRegion
     public bool IsConvex { get; }
 
     public Point[] Points => _points;
+
+    public ICollection<IBoundedCurve> Boundary => _lines;
 
     public int WindingNumber(Point point)
     {

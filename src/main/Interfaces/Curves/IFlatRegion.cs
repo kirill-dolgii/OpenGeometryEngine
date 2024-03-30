@@ -4,11 +4,13 @@ namespace OpenGeometryEngine;
 
 public interface IFlatRegion : IEnumerable<IBoundedCurve>
 {
-    double Length { get; }
+    double Perimeter { get; }
 
     double Area { get; }
 
     Plane Plane { get; }
+
+    ICollection<IBoundedCurve> Boundary { get; }
 
     public ICollection<IFlatRegion> InnerRegions { get; }
 
