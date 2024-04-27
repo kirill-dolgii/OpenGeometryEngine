@@ -116,7 +116,7 @@ public class LineSegment : IBoundedCurve
     {
         Argument.IsNotNull(nameof(parameters), parameters);
         var bounds = Iterate.Over(Interval.Start, Interval.End).ToArray();
-        var nonBoundedParams = parameters.Except(bounds).ToArray();
+        var nonBoundedParams = parameters.Where(param => !Accuracy.LengthIsZero(param)).Except(bounds).ToArray();
 		if (!nonBoundedParams.Any()) return Array.Empty<LineSegment>();
         var suitableParams = nonBoundedParams
 			.Where(param => Accuracy.WithinLengthInterval(Interval, param))

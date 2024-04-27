@@ -5,7 +5,9 @@ VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenGeometryEngine", "src\main\OpenGeometryEngine.csproj", "{13A541C8-CE1D-4E6E-AF22-8577B21875B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGeometryEngineTests", "src\tests\OpenGeometryEngineTests.csproj", "{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenGeometryEngineTests", "src\tests\OpenGeometryEngineTests.csproj", "{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Translators", "src\translators\Translators.csproj", "{6C943A4A-EFC2-43C9-8334-FDF83AFAC177}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D8B0DE9-D283-49B4-BFA0-EE8A03776DB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C943A4A-EFC2-43C9-8334-FDF83AFAC177}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C943A4A-EFC2-43C9-8334-FDF83AFAC177}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C943A4A-EFC2-43C9-8334-FDF83AFAC177}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C943A4A-EFC2-43C9-8334-FDF83AFAC177}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

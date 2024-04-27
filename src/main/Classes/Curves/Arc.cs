@@ -77,8 +77,9 @@ public class Arc : IBoundedCurve
 
     public bool ContainsPoint(Point point)
     {
-        var param = Circle.ProjectPoint(point).Param;
-        return Accuracy.WithinAngleInterval(Interval, param); 
+        var proj = Circle.ProjectPoint(point);
+        return Accuracy.EqualLengths(point.Vector.Magnitude, proj.Point.Vector.Magnitude) &&
+               Accuracy.WithinAngleInterval(Interval, proj.Param); 
     }
 
     public ICurveEvaluation ProjectPoint(Point point)

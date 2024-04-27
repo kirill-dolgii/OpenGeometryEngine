@@ -18,9 +18,9 @@ public readonly struct PolylineOptions
         ChordTolerance = chordTolerance;
     }
 
-    public const double DefaultAngularDeviation = 5;
+    public const double DefaultAngularDeviation = 3;
 
     public const double DefaultMaxChordLength = 0.001;
 
-    public const double DefaultChordTolerance = 1E-2;
+    public const double DefaultChordTolerance = 5E-5;
 }

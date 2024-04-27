@@ -45,8 +45,8 @@ public readonly struct Interval
     public double Project(double val, double tolerance)
     {
         if (double.IsNaN(val)) throw new DoubleIsNanException(nameof(val));
-        if (Accuracy.CompareWithTolerance(val, Start, tolerance) == 1) return Start;
-        if (Accuracy.CompareWithTolerance(val, End, tolerance) == -1) return End;
+        if (Accuracy.CompareWithTolerance(val, Start, tolerance) == -1) return Start;
+        if (Accuracy.CompareWithTolerance(val, End, tolerance) == 1) return End;
         return val;
     }
 

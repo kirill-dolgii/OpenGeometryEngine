@@ -2,5 +2,6 @@
 
 public abstract class PolygonRegionTestBase : TestBase
 {
-    protected override DirectoryInfo TestDataDirectory => new (Path.Combine(base.TestDataDirectory.FullName, "PolylineRegionData"));
+    protected override DirectoryInfo TestDataDirectory 
+        => new (Path.Combine(base.TestDataDirectory.FullName, "PolygonRegionTestsData"));
 }

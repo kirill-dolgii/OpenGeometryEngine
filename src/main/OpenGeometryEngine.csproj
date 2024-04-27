@@ -10,8 +10,6 @@
 
   <ItemGroup>
     <Folder Include="Exceptions\Numeric\" />
-    <Folder Include="Interfaces\Collections\" />
-    <Folder Include="Rounding\" />
   </ItemGroup>
 
   <ItemGroup>

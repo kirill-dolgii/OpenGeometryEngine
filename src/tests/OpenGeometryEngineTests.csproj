@@ -18,18 +18,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\main\OpenGeometryEngine.csproj" />
+    <ProjectReference Include="..\translators\Translators.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestData\PolylineRegionData\Concave1.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="TestData\PolylineRegionData\Concave2.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="TestData\PolylineRegionData\Convex1.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+  	<Content Include="TestData\**">
+  		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Translators\" />
   </ItemGroup>
 
 </Project>

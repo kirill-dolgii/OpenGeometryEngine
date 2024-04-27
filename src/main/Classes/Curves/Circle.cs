@@ -95,7 +95,7 @@ public sealed class Circle : CurveBase, ICircle
 
     public ICollection<CircleEvaluation> GetPolyline(PolylineOptions options, Interval interval)
     {
-        int steps = (int)(GetStepNum(this, options) * Math.PI / interval.Span);
+        int steps = Math.Max(3, GetStepNum(this, options));
         if (Accuracy.EqualAngles(interval.Span, 2 * Math.PI)) steps++;
         var evals = new CircleEvaluation[steps];
         var theta = interval.Span / steps;

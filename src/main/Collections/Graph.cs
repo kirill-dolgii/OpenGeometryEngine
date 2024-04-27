@@ -7,11 +7,11 @@ namespace DataStructures.Graph;
 
 public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
 {
-    protected readonly IDictionary<Node, HashSet<Node>> _adjacent;
+    internal readonly IDictionary<Node, HashSet<Node>> _adjacent;
 
-    protected readonly IDictionary<TNode, Node> _map;
+    internal readonly IDictionary<TNode, Node> _map;
 
-    protected readonly IDictionary<(Node x, Node y), TEdge> _edges;
+	internal readonly IDictionary<(Node x, Node y), TEdge> _edges;
 
     private int _edgesCount;
     
@@ -77,7 +77,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         Argument.IsNotNull(nameof(other), other);
         var otherToThisNodes = other._map.ToDictionary(kv => kv.Value, kv => new Node(kv.Value.Item));
 		_map = other._map.Values.ToDictionary(node => node.Item, 
-                                node => otherToThisNodes[node], NodeEqualityComparer);
+                                node => otherToThisNodes[node], other.NodeEqualityComparer);
         _adjacent = other._adjacent.ToDictionary(kv => otherToThisNodes[kv.Key], 
             kv => new HashSet<Node>(other._adjacent[kv.Key].Select(node => otherToThisNodes[node])));
         _edges = other._edges.ToDictionary(kv => (otherToThisNodes[kv.Key.x], otherToThisNodes[kv.Key.y]),
@@ -128,7 +128,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
 
     public int Degree(TNode node) => DegreeImpl(_map[node]);
 
-    protected int DegreeImpl(Node node) => _adjacent[node].Count;
+	internal int DegreeImpl(Node node) => _adjacent[node].Count;
 
     public bool AddNode(TNode node)
     {
@@ -136,7 +136,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         return AddNodeImpl(graphNode);
     }
 
-    protected bool AddNodeImpl(Node node)
+	internal bool AddNodeImpl(Node node)
     {
         if (ContainsNodeImpl(node)) return false;
         _map[node.Item] = node;
@@ -155,7 +155,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         return true;
     }
 
-    protected bool AddEdgeImpl(Node x, Node y, TEdge edge, bool directed)
+	internal bool AddEdgeImpl(Node x, Node y, TEdge edge, bool directed)
     {
         if (ContainsEdgeImpl(x, y)) return false;
         _edges[(x, y)] = edge;
@@ -170,7 +170,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         return _map.ContainsKey(node) && ContainsNodeImpl(_map[node]);
     }
 
-    protected bool ContainsNodeImpl(Node node)
+	internal bool ContainsNodeImpl(Node node)
         => _adjacent.ContainsKey(node);
 
     public bool ContainsEdge(TNode x, TNode y)
@@ -181,7 +181,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         return ContainsEdgeImpl(xNode, yNode);
     }
 
-    protected bool ContainsEdgeImpl(Node x, Node y)
+	internal bool ContainsEdgeImpl(Node x, Node y)
     {
         return _edges.ContainsKey((x, y));
     }
@@ -204,7 +204,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         return RemoveEdgeImpl(xNode, yNode);
     }
 
-    protected bool RemoveEdgeImpl(Node x, Node y)
+	internal bool RemoveEdgeImpl(Node x, Node y)
     {
         if (!ContainsEdgeImpl(x, y)) return false;
         _edges.Remove((x, y));
@@ -304,7 +304,7 @@ public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
         return path.Select(tpl => (tpl.Item1.Item, tpl.Item2.Item, tpl.Item3)).ToArray();
     }
 
-    protected class Node
+    internal class Node
     {
         public readonly TNode Item;
 

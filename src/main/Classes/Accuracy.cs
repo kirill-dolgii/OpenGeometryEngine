@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using OpenGeometryEngine.Exceptions;
 
 namespace OpenGeometryEngine;
@@ -70,11 +71,12 @@ public static class Accuracy
     public static bool IsZero(double val, double tolerance = DefaultDoubleTolerance)
         => CompareWithTolerance(val, 0.0, tolerance) == 0;
 
-    #endregion
+	#endregion
 
-    #region Length
-    
-    public static bool EqualLengths(double a, double b) => AreEqual(a, b, LinearTolerance);
+	#region Length
+
+	[DebuggerStepThrough]
+	public static bool EqualLengths(double a, double b) => AreEqual(a, b, LinearTolerance);
 
     public static bool WithinLengthInterval(Interval interval, double param)
         => WithinRangeWithTolerance(interval.Start, interval.End, param, LinearTolerance);
@@ -86,9 +88,16 @@ public static class Accuracy
 
     #endregion
 
-    #region Angles
-    
-    public static bool EqualAngles(double a, double b) => AreEqual(a, b, AngularTolerance);
+    #region Area
+
+    public static bool EqualAreas(double a, double b) 
+        => AreEqual(a, b, Math.Sqrt(LinearTolerance));
+
+	#endregion
+
+	#region Angles
+
+	public static bool EqualAngles(double a, double b) => AreEqual(a, b, AngularTolerance);
 
     public static bool WithinAngleInterval(Interval interval, double param)
         => WithinRangeWithTolerance(interval.Start, interval.End, param, AngularTolerance);
