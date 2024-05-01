@@ -139,6 +139,13 @@ internal class LoopWire2dSolver : Graph<Point, IBoundedCurve>, ISolver<ICollecti
 		Node vAdj = edge.y;
 		while (vAdj != start)
 		{
+			if (closedWalk.Contains(vAdj)) // start is not in the loop
+			{
+				var vAdjI = closedWalk.IndexOf(vAdj);
+				closedWalk.RemoveRange(0, vAdjI);
+				closedWalk.Add(vAdj);
+				return closedWalk;
+			}
 			_visitedEdges[_edges[edge]] = true;
 			closedWalk.Add(vAdj);
 			edge = GetNextEdge(vAdj, vCurr);
@@ -221,12 +228,10 @@ internal class LoopWire2dSolver : Graph<Point, IBoundedCurve>, ISolver<ICollecti
 			RemoveNode(node.Item);
 		}
 		RemoveEdgeImpl(closedWalk[0], closedWalk[1]);
-		foreach (var node in _map.Values)
+
+		while (_adjacent.Any(kv => kv.Value.Count < 2))
 		{
-			if (_adjacent[node].Count == 1)
-			{
-				RemoveNode(node.Item); //TODO : Add RemoveNodeImpl to the Graph<TNode, TEdge>
-			}
+			RemoveNode(_adjacent.First(kv => kv.Value.Count < 2).Key.Item);
 		}
         _visitedEdges = Edges.ToDictionary(edge => edge, edge => false);
     }

@@ -134,7 +134,7 @@ public sealed class PolyLineRegion : IFlatRegion
 		return CreateRegions(intersectionCurves, Plane);
 	}
 
-	internal bool GetIntersectionCurves(ICollection<IBoundedCurve> curves,
+	public bool GetIntersectionCurves(ICollection<IBoundedCurve> curves,
 										out Dictionary<IBoundedCurve, ICollection<IBoundedCurve>> map, 
                                         out ICollection<IBoundedCurve> intersectionCurves)
 	{
