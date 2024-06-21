@@ -8,12 +8,4 @@
 	<Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Exceptions\Numeric\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Structures\Evaluation\CurveEvaluation\ICurveEvaluation.cs" />
-  </ItemGroup>
-
 </Project>

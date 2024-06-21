@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace OpenGeometryEngine;
+namespace OpenGeometryEngine.Misc;
 
 internal static class Hashing
 {

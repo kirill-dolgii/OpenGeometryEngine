@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenGeometryEngine.Exceptions;
 using OpenGeometryEngine.Collections;
+using System.Security.Cryptography;
 
 namespace OpenGeometryEngine;
 
@@ -41,6 +42,7 @@ public class PolygonRegion : IFlatRegion
         Plane = plane;
         Area = ComputeArea(_points, Plane);
         IsConvex = PolygonIsConvex(_points, plane);
+        Centroid = ComputeCentroid(_points, Plane);
     }
 
     public PolygonRegion(Point[] points, Plane plane)
@@ -63,10 +65,73 @@ public class PolygonRegion : IFlatRegion
         _points = points;
         Area = ComputeArea(points, plane);
         IsConvex = PolygonIsConvex(points, plane);
+        Centroid = ComputeCentroid(_points, Plane);
     }
 
-    internal static double ComputeArea(Point[] points, Plane plane)
+    public static Point ComputeCentroid(Point[] points, Plane plane)
     {
+        //var signedArea = ComputeArea(points, plane);
+        //var pointsUV = points.Select(point => plane.ProjectPoint(point).Param).ToArray();
+        //double centroidU = .0, centroidV = .0;
+        //for (int i = 0; i < pointsUV.Length - 1; i++)
+        //{
+        //    var index = i % pointsUV.Length;
+        //    var multiply = pointsUV[index].U * pointsUV[index + 1].V - pointsUV[index + 1].U * pointsUV[index].V;
+        //    centroidU += (pointsUV[index].U + pointsUV[index + 1].U) * multiply;
+        //    centroidV += (pointsUV[index].V + pointsUV[index + 1].V) * multiply;
+        //}
+        //return plane.Evaluate(new PointUV(centroidU / (6 * signedArea), centroidV / (6 * signedArea))).Point;
+
+        var uv = points.Select(p => plane.ProjectPoint(p).Param).ToArray();
+
+        var areaTotal = .0;
+        var centroid = new PointUV(.0, .0);
+        for (int i = 0; i < points.Length - 2; i++)
+        {
+            var a = uv[i]; 
+            var b = uv[i + 1]; 
+            var c = uv[i + 2]; 
+
+            var area = ((a.U * (b.V - c.V)) + 
+                        (b.U * (c.V - a.V)) + 
+                        (c.U * (a.V - b.V))) / 2.0;
+            if (area ==  0) continue;
+            var triCentroid = new VectorUV((a.U + b.U + c.U) / 3.0, (a.V + b.V + c.V) / 3.0);
+            var centroidU = ((areaTotal * centroid.U) + (area * triCentroid.U)) / (areaTotal + area);
+            var centroidV = ((areaTotal * centroid.V) + (area * triCentroid.V)) / (areaTotal + area);
+            areaTotal += area;
+            centroid = new(centroidU, centroidV);
+        }
+        return plane.Evaluate(centroid).Point;
+        //    area_total = 0
+        //    centroid_total = [float(poly[0][0]), float(poly[0][1])]
+        //    for i in xrange(0, len(poly) - 2):
+        //        # Get points for triangle ABC
+        //        a, b, c = poly[0], poly[i+1], poly[i+2]
+        //        # Calculate the signed area of triangle ABC
+        //        area = ((a[0] * (b[1] - c[1])) +
+        //                (b[0] * (c[1] - a[1])) +
+        //                (c[0] * (a[1] - b[1]))) / 2.0;
+        //        # If the area is zero, the triangle's line segments are
+        //        # colinear so we should skip it
+        //        if 0 == area:
+        //            continue
+        //        # The centroid of the triangle ABC is the average of its three
+        //        # vertices
+        //        centroid = [(a[0] + b[0] + c[0]) / 3.0, (a[1] + b[1] + c[1]) / 3.0]
+        //        # Add triangle ABC's area and centroid to the weighted average
+        //        centroid_total[0] = ((area_total * centroid_total[0]) +
+        //                             (area * centroid[0])) / (area_total + area)
+        //        centroid_total[1] = ((area_total * centroid_total[1]) +
+        //                             (area * centroid[1])) / (area_total + area)
+        //        area_total += area
+        //    return centroid_total
+    }
+
+    public static double ComputeSignedArea(Point[] points, Plane plane)
+    {
+        Argument.IsNotNull(nameof(points), points);
+        if (points.Length < 3) throw new ArgumentException("at least 3 points must be provided for area computation");
         var area = 0.0;
         for (int i = 0; i < points.Length; i++)
         {
@@ -77,6 +142,18 @@ public class PolygonRegion : IFlatRegion
             area += cross.Magnitude * Math.Sign(Vector.Dot(cross, plane.Frame.DirZ));
         }
         if (points.Length > 3) area /= 2;
+        return area;
+    }
+
+    internal static double ComputeArea(Point[] points, Plane plane)
+    {
+        Argument.IsNotNull(nameof(points), points);
+        if (points.Length < 3) throw new ArgumentException("at least 3 points must be provided for area computation");
+        foreach (var point in points)
+        {
+            if (!plane.ContainsPoint(point)) throw new PointOffRegionPlaneException();
+        }
+        var area = ComputeSignedArea(points, plane);
         return Math.Abs(area);
     }
     
@@ -181,6 +258,8 @@ public class PolygonRegion : IFlatRegion
     public ICollection<IFlatRegion> InnerRegions => throw new NotImplementedException();
 
     public bool IsConvex { get; }
+
+    public Point Centroid { get; }
 
     public Point[] Points => _points;
 

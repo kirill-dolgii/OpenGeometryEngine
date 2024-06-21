@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Exceptions;
 using OpenGeometryEngine.Extensions;
-using OpenGeometryEngine.Intersection.Unbounded;
+using OpenGeometryEngine.Misc;
+using OpenGeometryEngine.Intersection;
 
 namespace OpenGeometryEngine;
 

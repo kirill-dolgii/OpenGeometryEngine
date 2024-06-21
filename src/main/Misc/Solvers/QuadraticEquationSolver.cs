@@ -1,4 +1,5 @@
-using OpenGeometryEngine.Misc.Solvers;
+using OpenGeometryEngine.Misc;
+using OpenGeometryEngine.Collections;
 using System;
 using System.Numerics;
 

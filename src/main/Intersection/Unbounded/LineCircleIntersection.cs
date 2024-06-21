@@ -1,9 +1,10 @@
-using static OpenGeometryEngine.Intersection.Unbounded.LinePlaneIntersection;
+using static OpenGeometryEngine.Intersection.LinePlaneIntersection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenGeometryEngine.Misc;
 
-namespace OpenGeometryEngine.Intersection.Unbounded;
+namespace OpenGeometryEngine.Intersection;
 
 internal static class LineCircleIntersection
 {

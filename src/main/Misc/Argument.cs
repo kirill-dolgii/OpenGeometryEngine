@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenGeometryEngine;
+namespace OpenGeometryEngine.Misc;
 
 public static class Argument
 {

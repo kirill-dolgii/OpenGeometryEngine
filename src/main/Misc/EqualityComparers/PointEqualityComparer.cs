@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace OpenGeometryEngine;
+namespace OpenGeometryEngine.Misc;
 
 public class PointEqualityComparer : IEqualityComparer<Point>
 {

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+namespace OpenGeometryEngine.Collections;
+
 public class Pair<T> : IEnumerable<T>
 {
     public T First { get; }

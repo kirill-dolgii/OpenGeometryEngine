@@ -1,10 +1,9 @@
-﻿using DataStructures.Graph;
-using OpenGeometryEngine.BRep;
-using OpenGeometryEngine.Extensions;
+﻿using OpenGeometryEngine.Extensions;
+using OpenGeometryEngine.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OpenGeometryEngine.Misc.Solvers;
+namespace OpenGeometryEngine.Misc;
 
 internal class LoopWire2dSolver : Graph<Point, IBoundedCurve>, ISolver<ICollection<Wire>>
 {

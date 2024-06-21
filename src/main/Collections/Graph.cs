@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenGeometryEngine;
+using OpenGeometryEngine.Misc;
 
-namespace DataStructures.Graph;
+namespace OpenGeometryEngine.Collections;
 
 public class Graph<TNode, TEdge> : IGraph<TNode, TEdge>
 {

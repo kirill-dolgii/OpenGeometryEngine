@@ -3,9 +3,8 @@ using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
-using System.Runtime;
 using OpenGeometryEngine.Extensions;
+using OpenGeometryEngine.Misc;
 
 namespace OpenGeometryEngine;
 
@@ -116,7 +115,8 @@ public class LineSegment : IBoundedCurve
     {
         Argument.IsNotNull(nameof(parameters), parameters);
         var bounds = Iterate.Over(Interval.Start, Interval.End).ToArray();
-        var nonBoundedParams = parameters.Where(param => !Accuracy.LengthIsZero(param)).Except(bounds).ToArray();
+        var cmp = new FunctionalEqualityComparer<double>(Accuracy.EqualLengths, (val) => 1);
+        var nonBoundedParams = parameters.Where(param => !Accuracy.LengthIsZero(param)).Except(bounds, cmp).ToArray();
 		if (!nonBoundedParams.Any()) return Array.Empty<LineSegment>();
         var suitableParams = nonBoundedParams
 			.Where(param => Accuracy.WithinLengthInterval(Interval, param))

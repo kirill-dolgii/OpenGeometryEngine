@@ -1,5 +1,3 @@
-using OpenGeometryEngine.Extensions;
-
 namespace OpenGeometryEngine;
 
 public class PlaneEvaluation : ISurfaceEvaluation

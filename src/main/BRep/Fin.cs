@@ -1,6 +1,4 @@
-﻿using OpenGeometryEngine.BRep;
-
-namespace OpenGeometryEngine;
+﻿namespace OpenGeometryEngine;
 
 internal struct Fin
 {

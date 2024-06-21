@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using OpenGeometryEngine.Intersection.Unbounded;
+using OpenGeometryEngine.Misc.Enums;
+using OpenGeometryEngine.Intersection;
 
 namespace OpenGeometryEngine;
 

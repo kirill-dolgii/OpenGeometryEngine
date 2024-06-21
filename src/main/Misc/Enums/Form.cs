@@ -1,4 +1,4 @@
-namespace OpenGeometryEngine;
+namespace OpenGeometryEngine.Misc.Enums;
 
 public enum Form
 {

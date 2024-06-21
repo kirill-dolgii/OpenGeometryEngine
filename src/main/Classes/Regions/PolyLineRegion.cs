@@ -1,14 +1,12 @@
-﻿using DataStructures.Graph;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Collections.ObjectModel;
-using OpenGeometryEngine.Misc.Solvers;
-using OpenGeometryEngine.BRep;
 using OpenGeometryEngine.Collections;
+using OpenGeometryEngine.Misc;
 
-namespace OpenGeometryEngine.Regions;
+namespace OpenGeometryEngine;
 
 public sealed class PolyLineRegion : IFlatRegion
 {
@@ -139,7 +137,7 @@ public sealed class PolyLineRegion : IFlatRegion
                                         out ICollection<IBoundedCurve> intersectionCurves)
 	{
 		Argument.IsNotNull(nameof(curves), curves);
-
+    
 		var intersections = _curves.SelectMany(polygonCurve =>
 				curves.SelectMany(curve => polygonCurve.IntersectCurve(curve)
 					  .Select(ip => new { PolygonCurve = polygonCurve, SplitCurve = curve, Intersection = ip, Inner = false }))).ToArray();
@@ -188,11 +186,12 @@ public sealed class PolyLineRegion : IFlatRegion
 
 		var innerBoundary = new HashSet<IBoundedCurve>(InnerRegions
             .SelectMany(region => region.Boundary)
-            .SelectMany(curve => map.ContainsKey(curve) ? map[curve] : Iterate.Over(curve))
+            .SelectMany(curve => map.ContainsKey(curve) && map[curve].Any() ? map[curve] : Iterate.Over(curve))
             .ToArray());
 
         foreach (var kv in map)
 		{
+            if (!kv.Value.Any()) continue;
 			myCurves.Remove(kv.Key);
 			foreach (var splitted in kv.Value)
 			{

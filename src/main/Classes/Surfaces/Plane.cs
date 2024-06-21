@@ -1,3 +1,5 @@
+using OpenGeometryEngine.Misc.Enums;
+
 namespace OpenGeometryEngine;
 
 public sealed class Plane : FrameSurfaceBase, ISurface

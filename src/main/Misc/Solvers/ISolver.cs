@@ -1,4 +1,4 @@
-﻿namespace OpenGeometryEngine.Misc.Solvers;
+﻿namespace OpenGeometryEngine.Misc;
 
 public interface ISolver<T>
 {

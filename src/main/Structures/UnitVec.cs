@@ -1,6 +1,7 @@
 using System;
-using OpenGeometryEngine;
 using OpenGeometryEngine.Exceptions;
+
+namespace OpenGeometryEngine;
 
 public readonly struct UnitVec : IEquatable<UnitVec>
 {

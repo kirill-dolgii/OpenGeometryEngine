@@ -1,4 +1,4 @@
-﻿namespace OpenGeometryEngine.Misc.Math;
+﻿namespace OpenGeometryEngine.Misc;
 
 public static class Angle
 {

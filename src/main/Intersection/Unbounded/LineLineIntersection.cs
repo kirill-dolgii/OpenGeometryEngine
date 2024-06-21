@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using OpenGeometryEngine.Misc;
 
-namespace OpenGeometryEngine.Intersection.Unbounded;
+namespace OpenGeometryEngine.Intersection;
 
 internal static class LineLineIntersection
 {

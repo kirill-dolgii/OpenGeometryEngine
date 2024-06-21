@@ -1,7 +1,7 @@
-﻿using DataStructures.Graph;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenGeometryEngine.Misc;
 
 namespace OpenGeometryEngine.Collections;
 

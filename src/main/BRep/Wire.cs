@@ -1,11 +1,10 @@
 ﻿using OpenGeometryEngine.Collections;
 using OpenGeometryEngine.Misc;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OpenGeometryEngine.BRep;
+namespace OpenGeometryEngine;
 
 internal class Wire : ICollection<Fin>
 {

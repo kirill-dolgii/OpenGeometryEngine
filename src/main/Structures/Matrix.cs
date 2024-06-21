@@ -1,4 +1,4 @@
-using static System.Math;
+﻿using static System.Math;
 
 using System;
 using System.Text;
@@ -148,6 +148,15 @@ public readonly struct Matrix
                 [3, 3] = 1f
             }
         };
+    }
+
+    public static Matrix CreateRotation(Point point, UnitVec axis, double angle)
+    {
+        if (Accuracy.AngleIsZero(angle)) return Matrix.Identity;
+        // T(x,y)∗R∗T(−x,−y)(P)
+        var t = Matrix.CreateTranslation(point.Vector);
+        var r = Matrix.CreateRotation(Frame.World.DirZ, angle);
+        return t * r * t.Inverse();
     }
 
     private static Matrix CreateRotation(Vector xAxis, Vector yAxis, Vector zAxis) =>
